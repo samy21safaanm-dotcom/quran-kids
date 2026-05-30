@@ -1,0 +1,6 @@
+# Ignore local development files and folders for Vercel deployment
+.env.local
+.next/
+node_modules/
+.vscode/
+tsconfig.tsbuildinfo
