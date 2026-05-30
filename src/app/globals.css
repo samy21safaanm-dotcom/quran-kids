@@ -1,26 +1,327 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700;800;900&display=swap');
+
 @import "tailwindcss";
 
+/* ── CSS Variables ─────────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --gold:        #F5C842;
+  --gold-light:  #FFE082;
+  --gold-dark:   #C9A227;
+  --purple:      #7C3AED;
+  --purple-light:#A78BFA;
+  --purple-dark: #4C1D95;
+  --sky:         #0EA5E9;
+  --night-deep:  #020817;
+  --night-mid:   #0A1628;
+  --night-light: #0F2040;
+
+  /* Typography */
+  --font-ui:     'Cairo', 'Tajawal', 'Arial', sans-serif;
+  --font-quran:  'Amiri', 'Traditional Arabic', serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ── Reset & Base ──────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  direction: rtl;
+  scroll-behavior: smooth;
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-ui);
+  background: var(--night-deep);
+  color: #ffffff;
+  overflow-x: hidden;
+  min-height: 100vh;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Arabic text rendering ─────────────────────────────────────────────────── */
+p, h1, h2, h3, h4, h5, h6, span, button, input, label, div {
+  font-family: var(--font-ui);
+  unicode-bidi: plaintext;
+}
+
+/* Quran text class */
+.font-quran {
+  font-family: var(--font-quran) !important;
+  font-size: 1.6rem;
+  line-height: 2.4;
+  letter-spacing: 0.02em;
+  direction: rtl;
+  text-align: right;
+  unicode-bidi: bidi-override;
+}
+
+.font-quran-lg {
+  font-family: var(--font-quran) !important;
+  font-size: 2rem;
+  line-height: 2.6;
+  direction: rtl;
+  text-align: right;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar-track { background: var(--night-deep); }
+::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 3px; }
+
+/* ── Keyframe Animations ───────────────────────────────────────────────────── */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50%       { opacity: 1;   transform: scale(1.2); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-20px); }
+}
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50%       { transform: translateY(-30px) rotate(5deg); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(245,200,66,0.3); }
+  50%       { box-shadow: 0 0 60px rgba(245,200,66,0.8), 0 0 100px rgba(245,200,66,0.4); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(245,200,66,0.5)); }
+  50%       { filter: drop-shadow(0 0 30px rgba(245,200,66,1)) drop-shadow(0 0 60px rgba(245,200,66,0.5)); }
+}
+@keyframes typing-dot {
+  0%, 60%, 100% { transform: translateY(0);   opacity: 0.4; }
+  30%            { transform: translateY(-8px); opacity: 1;   }
+}
+@keyframes particle-float {
+  0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 0.5; }
+  100% { transform: translateY(-100px) scale(1); opacity: 0; }
+}
+
+/* ── Animation Utility Classes ─────────────────────────────────────────────── */
+.animate-twinkle    { animation: twinkle var(--duration, 3s) ease-in-out infinite; }
+.animate-float      { animation: float 4s ease-in-out infinite; }
+.animate-float-slow { animation: floatSlow 6s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-shimmer    { animation: shimmer 3s linear infinite; }
+.animate-spin-slow  { animation: spin-slow 20s linear infinite; }
+.animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+.animate-scale-in   { animation: scaleIn 0.6s ease-out forwards; }
+.animate-glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
+
+/* ── Gold Gradient Text ─────────────────────────────────────────────────────── */
+.gold-text {
+  background: linear-gradient(135deg, #F5C842, #FFE082, #C9A227, #F5C842);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s linear infinite;
+}
+
+/* ── Glass Cards ────────────────────────────────────────────────────────────── */
+.glass-card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.glass-card-gold {
+  background: rgba(245,200,66,0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(245,200,66,0.2);
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────────── */
+.btn-gold {
+  background: linear-gradient(135deg, #F5C842, #C9A227);
+  color: #1a0a00;
+  font-weight: 800;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(245,200,66,0.4);
+  font-family: var(--font-ui);
+}
+.btn-gold:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 40px rgba(245,200,66,0.7);
+}
+.btn-purple {
+  background: linear-gradient(135deg, #7C3AED, #4C1D95);
+  color: #fff;
+  font-weight: 800;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+  font-family: var(--font-ui);
+}
+.btn-purple:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 40px rgba(124,58,237,0.7);
+}
+
+/* ── Backgrounds ────────────────────────────────────────────────────────────── */
+.night-gradient {
+  background: radial-gradient(ellipse at top, #0F2040 0%, #0A1628 40%, #020817 100%);
+}
+
+/* ── Character Cards ────────────────────────────────────────────────────────── */
+.card-noor {
+  background: linear-gradient(135deg, rgba(14,165,233,0.1), rgba(245,200,66,0.1));
+  border: 1px solid rgba(14,165,233,0.3);
+}
+.card-lujain {
+  background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(236,72,153,0.1));
+  border: 1px solid rgba(124,58,237,0.3);
+}
+.card-noor:hover {
+  border-color: rgba(14,165,233,0.8);
+  box-shadow: 0 0 60px rgba(14,165,233,0.3), 0 0 120px rgba(245,200,66,0.1);
+}
+.card-lujain:hover {
+  border-color: rgba(124,58,237,0.8);
+  box-shadow: 0 0 60px rgba(124,58,237,0.3), 0 0 120px rgba(236,72,153,0.1);
+}
+
+/* ── Chat ───────────────────────────────────────────────────────────────────── */
+.chat-container {
+  background: linear-gradient(180deg, rgba(10,22,40,0.95) 0%, rgba(2,8,23,0.98) 100%);
+  backdrop-filter: blur(30px);
+}
+.message-bot {
+  background: linear-gradient(135deg, rgba(245,200,66,0.15), rgba(245,200,66,0.05));
+  border: 1px solid rgba(245,200,66,0.2);
+  border-radius: 20px 20px 20px 4px;
+}
+.message-user {
+  background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(124,58,237,0.15));
+  border: 1px solid rgba(124,58,237,0.3);
+  border-radius: 20px 20px 4px 20px;
+}
+
+/* ── Age Cards ──────────────────────────────────────────────────────────────── */
+.age-card {
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.age-card:hover, .age-card.selected {
+  border-color: var(--gold);
+  background: rgba(245,200,66,0.1);
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(245,200,66,0.3);
+}
+
+/* ── Typing Indicator ───────────────────────────────────────────────────────── */
+.typing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: inline-block;
+}
+.typing-dot:nth-child(1) { animation: typing-dot 1.2s ease-in-out infinite; }
+.typing-dot:nth-child(2) { animation: typing-dot 1.2s ease-in-out 0.2s infinite; }
+.typing-dot:nth-child(3) { animation: typing-dot 1.2s ease-in-out 0.4s infinite; }
+
+/* ── Islamic Pattern ────────────────────────────────────────────────────────── */
+.islamic-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23F5C842' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ── Mushaf / Quran Display ─────────────────────────────────────────────────── */
+.mushaf-container {
+  background: linear-gradient(135deg, rgba(245,200,66,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(245,200,66,0.15);
+  border-radius: 24px;
+  padding: 2rem;
+}
+.ayah-text {
+  font-family: var(--font-quran);
+  font-size: 1.75rem;
+  line-height: 2.5;
+  direction: rtl;
+  text-align: right;
+  color: #ffffff;
+  text-rendering: optimizeLegibility;
+}
+.ayah-text-lg {
+  font-family: var(--font-quran);
+  font-size: 2.25rem;
+  line-height: 2.8;
+  direction: rtl;
+  text-align: right;
+  color: #ffffff;
+}
+.bismillah-text {
+  font-family: var(--font-quran);
+  font-size: 2rem;
+  line-height: 2;
+  direction: rtl;
+  text-align: center;
+  color: #ffffff;
+}
+
+/* ── RTL Utilities ──────────────────────────────────────────────────────────── */
+[dir="rtl"] input,
+[dir="rtl"] textarea {
+  text-align: right;
+  direction: rtl;
+}
+
+@keyframes float-slow {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-18px); }
+  100% { transform: translateY(0); }
+}
+@keyframes float-slower {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-30px); }
+  100% { transform: translateY(0); }
+}
+.animate-float-slow {
+  animation: float-slow 4s ease-in-out infinite;
+}
+.animate-float-slower {
+  animation: float-slower 7s ease-in-out infinite;
+}
+
+.cinematic-glow {
+  position: absolute;
+  left: 50%;
+  top: 33%;
+  transform: translate(-50%, 0);
+  width: 700px;
+  height: 300px;
+  border-radius: 9999px;
+  background: radial-gradient(ellipse at center, #ffe06688 0%, #fffbe6 80%, transparent 100%);
+  filter: blur(60px);
+  opacity: 0.5;
+  z-index: 0;
 }
