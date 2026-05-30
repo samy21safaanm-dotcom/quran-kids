@@ -1,11 +1,6 @@
-# Vercel Deployment Configuration
-
-# This file tells Vercel to use the Next.js build output
-# and sets up the correct build and output settings.
-
-[build]
-command = "npm run build"
-
-[output]
-# Vercel will use the Next.js output directory
-# No need to change this for standard Next.js apps
+{
+	"version": 2,
+	"builds": [
+		{ "src": "next.config.js", "use": "@vercel/next" }
+	]
+}
