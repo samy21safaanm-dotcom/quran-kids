@@ -129,7 +129,7 @@ export default function JuzAmmaWorld({
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ fontSize: 20 }}>📖</span>
                   <div style={{ direction: 'rtl', textAlign: 'right' }}>
-                    <p style={{ color: '#fff', fontWeight: 900, fontSize: 12, lineHeight: 1 }}>نور القرآن</p>
+                    <p style={{ color: '#fff', fontWeight: 900, fontSize: 12, lineHeight: 1 }}>نبأ</p>
                     <p style={{ color: 'rgba(245,200,66,0.7)', fontSize: 11 }}>عالم جزء عم</p>
                   </div>
                 </div>

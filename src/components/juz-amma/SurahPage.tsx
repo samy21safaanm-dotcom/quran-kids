@@ -88,6 +88,26 @@ function Particle({ color }: { color: string }) {
 // ── Story Panel ───────────────────────────────────────────────────────────────
 type StoryPhase = 'idle' | 'playing' | 'done';
 
+function getStoryVideoSrc(surah: Surah) {
+  const explicitMap: Record<number, string> = {
+    92: 'al-layl-story.mp4',
+    93: 'ad-duha-story.mp4',
+    94: 'ash-sharh-story.mp4',
+    95: 'at-tin-story.mp4',
+    105: 'al-feel-story.mp4',
+    108: 'al-Kawthar-story.mp4',
+    109: 'al-Kafirun-story.mp4',
+    110: 'al-nasr-story.mp4',
+    111: 'al-masad-story.mp4',
+    112: 'al-ikhlas-story.mp4',
+    113: 'al-falaq-story.mp4',
+    114: 'al-nas-story.mp4',
+  };
+
+  const fileName = explicitMap[surah.id] ?? surah.story ?? '';
+  return `/videos/${encodeURIComponent(fileName)}`;
+}
+
 function StoryPanel({ surah, accent }: { surah: Surah; accent: string }) {
   const [phase, setPhase] = useState<StoryPhase>('idle');
   const [videoError, setVideoError] = useState(false);
@@ -97,10 +117,29 @@ function StoryPanel({ surah, accent }: { surah: Surah; accent: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const handlePlay = async () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const nextSrc = getStoryVideoSrc(surah);
+    if (video.getAttribute('src') !== nextSrc) {
+      video.setAttribute('src', nextSrc);
+      video.load();
+    }
+
     setPhase('playing');
     setVideoError(false);
-    await new Promise(r => setTimeout(r, 80));
-    try { await videoRef.current?.play(); setPlaying(true); } catch { /* needs gesture */ }
+    try {
+      video.currentTime = 0;
+      video.muted = false;
+      video.volume = 1;
+      await new Promise(resolve => setTimeout(resolve, 200));
+      await video.play();
+      setPlaying(true);
+    } catch {
+      setVideoError(true);
+      setPhase('idle');
+      setPlaying(false);
+    }
   };
   const handlePause = () => {
     videoRef.current?.pause();
@@ -165,6 +204,8 @@ function StoryPanel({ surah, accent }: { surah: Surah; accent: string }) {
     );
   }
 
+  const videoSrc = getStoryVideoSrc(surah);
+
   return (
     <div className="relative w-full h-full" style={{ minHeight: 0 }}>
       {/* Glow */}
@@ -177,11 +218,11 @@ function StoryPanel({ surah, accent }: { surah: Surah; accent: string }) {
       </AnimatePresence>
 
       {/* Video */}
-      <video ref={videoRef} src={`/videos/${surah.story}`}
+      <video ref={videoRef} src={videoSrc}
         className="absolute inset-0 w-full h-full"
         style={{ objectFit: 'cover', opacity: phase === 'playing' && !videoError ? 1 : 0,
           transition: 'opacity 0.5s ease', pointerEvents: phase === 'playing' ? 'auto' : 'none' }}
-        playsInline onEnded={handleEnded} onError={handleError}
+        playsInline preload="auto" onEnded={handleEnded} onError={handleError}
         onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} />
       {/* Controls */}
       {phase === 'playing' && !videoError && (
@@ -237,6 +278,7 @@ function StoryPanel({ surah, accent }: { surah: Surah; accent: string }) {
             </div>
               <p className="text-white/30 text-sm relative z-10 px-6" style={{ fontFamily: 'Amiri, serif' }}>
                 {surah.id === 105 && '﴿ أَلَمْ تَرَ كَيْفَ فَعَلَ رَبُّكَ بِأَصْحَابِ الْفِيلِ ﴾'}
+                {surah.id === 110 && '﴿ إِذَا جَاءَ نَصْرُ اللَّهِ وَالْفَتْحُ ﴾'}
                 {surah.id === 112 && '﴿ قُلْ هُوَ اللَّهُ أَحَدٌ ﴾'}
                 {surah.id === 113 && '﴿ قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ﴾'}
               </p>
@@ -262,8 +304,8 @@ function StoryPanel({ surah, accent }: { surah: Surah; accent: string }) {
             <div className="text-6xl">🐘</div>
             <p className="text-white font-black text-xl">قصة أصحاب الفيل</p>
             <p className="text-white/50 text-sm text-center px-6">
-              ضع ملف الفيديو في:<br />
-              <code className="text-yellow-400 text-xs">public/videos/{surah.story}</code>
+              تعذر تشغيل القصة حالياً.<br />
+              <code className="text-yellow-400 text-xs">public/videos/{getStoryVideoSrc(surah).replace('/videos/', '')}</code>
             </p>
             <motion.button onClick={handleReplay}
               className="px-6 py-2 rounded-xl text-sm font-bold text-black"

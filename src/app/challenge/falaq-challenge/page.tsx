@@ -18,7 +18,7 @@ export default function FalaqChallengePage() {
     ayat = surah.ayat.map((a: any) => a.arabic);
   }
   const child = {
-    name: 'نور',
+    name: 'صالح',
     age: 8,
     gender: 'boy',
     level: 2,

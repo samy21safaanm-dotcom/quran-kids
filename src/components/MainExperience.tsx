@@ -98,7 +98,7 @@ export default function MainExperience({ character, childName, ageGroup, onResta
             <motion.div className="text-3xl"
               animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 4, repeat: Infinity }}>📖</motion.div>
             <div>
-              <h1 className="text-xl font-black gold-text">نور القرآن</h1>
+              <h1 className="text-xl font-black gold-text">نبأ</h1>
               <p className="text-white/50 text-xs">رحلتك الإيمانية</p>
             </div>
           </div>

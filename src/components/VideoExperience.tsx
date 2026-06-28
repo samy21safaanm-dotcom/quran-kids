@@ -24,8 +24,8 @@ export default function VideoExperience({ character, onComplete }: Props) {
   const videoSrc = isNoor ? '/videos/noor-intro.mp4' : '/videos/lujain-intro.mp4';
 
   const introText = isNoor
-    ? 'نور — مرشدك في عالم نور القرآن 🌟'
-    : 'لجين — رفيقتك في رحلة الإيمان 🌸';
+    ? 'صالح — مرشدك في عالم نبأ 🌟'
+    : 'هدى — رفيقتك في رحلة الإيمان 🌸';
 
   const triggerComplete = useCallback(() => {
     if (hasCalledComplete.current) return;
@@ -115,7 +115,7 @@ export default function VideoExperience({ character, onComplete }: Props) {
             transition={{ duration: 3, repeat: Infinity }}
           >
             <div className="text-[120px] leading-none mb-6">{isNoor ? '👦' : '👧'}</div>
-            <p className="text-white text-3xl font-black gold-text">{isNoor ? 'نور' : 'لجين'}</p>
+            <p className="text-white text-3xl font-black gold-text">{isNoor ? 'صالح' : 'هدى'}</p>
           </motion.div>
         </div>
       )}

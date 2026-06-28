@@ -8,7 +8,7 @@ import { playSuccessSound } from '../lib/feedbackAudio';
 
 // اجعل الشخصية ديناميكية حسب الجنس
 const mockChild: ChildProfile = {
-  name: 'نور',
+  name: 'صالح',
   age: 8,
   gender: 'boy', // 'boy' لنور، 'girl' للُجين
   level: 2,

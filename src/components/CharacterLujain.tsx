@@ -25,7 +25,7 @@ export default function CharacterLujain({ size = 280, glowing = false, className
     >
       <Image
         src="/lujain.png"
-        alt="لجين"
+        alt="هدى"
         width={size}
         height={size}
         className="object-contain w-full h-full"

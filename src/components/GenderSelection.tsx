@@ -52,7 +52,7 @@ export default function GenderSelection({ onSelect }: Props) {
           transition={{ type: 'spring', stiffness: 200, delay: 0.1 }}
         >
           <span className="text-4xl animate-glow-pulse">📖</span>
-          <h1 className="text-3xl md:text-4xl font-black gold-text">نور القرآن</h1>
+          <h1 className="text-3xl md:text-4xl font-black gold-text">نبأ</h1>
           <span className="text-4xl animate-glow-pulse">✨</span>
         </motion.div>
 
@@ -63,7 +63,7 @@ export default function GenderSelection({ onSelect }: Props) {
           transition={{ delay: 0.4 }}
         >
           مرحبًا بك في عالم{' '}
-          <span className="gold-text">نور القرآن</span>{' '}
+          <span className="gold-text">نبأ</span>{' '}
           <span className="inline-block animate-float">✨</span>
         </motion.h2>
 
@@ -129,7 +129,7 @@ export default function GenderSelection({ onSelect }: Props) {
             </motion.div>
 
             <div className="text-center mb-2">
-              <h3 className="text-3xl font-black text-white mb-1">نور</h3>
+              <h3 className="text-3xl font-black text-white mb-1">صالح</h3>
               <p className="text-sky-300 text-sm font-medium">الفتى المؤمن الشجاع</p>
             </div>
 
@@ -145,7 +145,7 @@ export default function GenderSelection({ onSelect }: Props) {
               className="btn-gold w-full py-4 text-xl font-black rounded-2xl relative overflow-hidden"
               whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
             >
-              <span className="relative z-10">ابدأ مع نور 🌟</span>
+              <span className="relative z-10">ابدأ مع صالح 🌟</span>
               <motion.div className="absolute inset-0 bg-white/20"
                 initial={{ x: '-100%' }} whileHover={{ x: '100%' }} transition={{ duration: 0.5 }} />
             </motion.button>
@@ -202,7 +202,7 @@ export default function GenderSelection({ onSelect }: Props) {
             </motion.div>
 
             <div className="text-center mb-2">
-              <h3 className="text-3xl font-black text-white mb-1">لجين</h3>
+              <h3 className="text-3xl font-black text-white mb-1">هدى</h3>
               <p className="text-purple-300 text-sm font-medium">الفتاة المؤمنة الذكية</p>
             </div>
 
@@ -218,7 +218,7 @@ export default function GenderSelection({ onSelect }: Props) {
               className="btn-purple w-full py-4 text-xl font-black rounded-2xl relative overflow-hidden"
               whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
             >
-              <span className="relative z-10">ابدأ مع لجين 🌸</span>
+              <span className="relative z-10">ابدأ مع هدى 🌸</span>
               <motion.div className="absolute inset-0 bg-white/20"
                 initial={{ x: '-100%' }} whileHover={{ x: '100%' }} transition={{ duration: 0.5 }} />
             </motion.button>

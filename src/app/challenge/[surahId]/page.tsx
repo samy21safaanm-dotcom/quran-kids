@@ -3,7 +3,7 @@
 "use client";
 import React, { useState } from 'react';
 import { useParams } from 'next/navigation';
-import { JUZ_AMMA, AL_IKHLAS_AYAT, AL_FALAQ_AYAT, AL_FIL_AYAT } from '@/lib/juzAmmaData';
+import { JUZ_AMMA, AL_IKHLAS_AYAT, AL_FALAQ_AYAT, AL_FIL_AYAT, AL_MAUN_AYAT, AL_NAS_AYAT, AL_NASR_AYAT, AL_KAWTHAR_AYAT, AL_KAFIRUN_AYAT, AT_TIN_AYAT } from '@/lib/juzAmmaData';
 import OrderAyatChallenge from '@/challenge/OrderAyatChallenge';
 import CompleteAyahChallenge from '@/challenge/CompleteAyahChallenge';
 import CompanionCharacter from '@/components/CompanionCharacter';
@@ -23,7 +23,7 @@ export default function SurahChallengePage() {
 
 function SurahChallengeClient({ surahIdNum }: { surahIdNum: number }) {
   // فقط السور التي لها قصة سينمائية
-  const allowedChallengeIds = [112, 113, 105];
+  const allowedChallengeIds = [108, 109, 110, 112, 113, 105, 114, 107];
   if (!allowedChallengeIds.includes(surahIdNum)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -33,17 +33,27 @@ function SurahChallengeClient({ surahIdNum }: { surahIdNum: number }) {
   }
   const surah = JUZ_AMMA.find(s => s.id === surahIdNum);
   let ayat: string[] = [];
-  if (surahIdNum === 112) {
+  if (surahIdNum === 108) {
+    ayat = AL_KAWTHAR_AYAT.map(a => a.arabic);
+  } else if (surahIdNum === 109) {
+    ayat = AL_KAFIRUN_AYAT.map(a => a.arabic);
+  } else if (surahIdNum === 110) {
+    ayat = AL_NASR_AYAT.map(a => a.arabic);
+  } else if (surahIdNum === 112) {
     ayat = AL_IKHLAS_AYAT.map(a => a.arabic);
   } else if (surahIdNum === 113) {
     ayat = AL_FALAQ_AYAT.map(a => a.arabic);
+  } else if (surahIdNum === 107) {
+    ayat = AL_MAUN_AYAT.map(a => a.arabic);
   } else if (surahIdNum === 105) {
     ayat = AL_FIL_AYAT.map(a => a.arabic);
+  } else if (surahIdNum === 114) {
+    ayat = AL_NAS_AYAT.map(a => a.arabic);
   } else if (surah && Array.isArray(surah.ayat)) {
     ayat = surah.ayat.map((a: any) => a.arabic);
   }
   const child = {
-    name: 'نور',
+    name: 'صالح',
     age: 8,
     gender: 'boy',
     level: 2,

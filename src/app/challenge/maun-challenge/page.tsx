@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
-import { JUZ_AMMA } from '@/lib/juzAmmaData';
+
+import { JUZ_AMMA, AL_MAUN_AYAT } from '@/lib/juzAmmaData';
 import OrderAyatChallenge from '@/challenge/OrderAyatChallenge';
 import CompleteAyahChallenge from '@/challenge/CompleteAyahChallenge';
 import CompanionCharacter from '@/components/CompanionCharacter';
@@ -9,14 +10,11 @@ import AnimatedStars from '@/components/AnimatedStars';
 import CinematicBackground from '@/components/CinematicBackground';
 import { playSuccessSound } from '@/lib/feedbackAudio';
 
-export default function FilChallengePage() {
-  // سورة الفيل رقمها 105
-  const surahIdNum = 105;
+export default function MaunChallengePage() {
+  const surahIdNum = 107;
   const surah = JUZ_AMMA.find(s => s.id === surahIdNum);
-  let ayat: string[] = [];
-  if (surah && Array.isArray(surah.ayat)) {
-    ayat = surah.ayat.map((a: any) => a.arabic);
-  }
+  const ayat = AL_MAUN_AYAT.map(a => a.arabic);
+
   const child = {
     name: 'صالح',
     age: 8,
@@ -25,6 +23,7 @@ export default function FilChallengePage() {
     stars: 5,
     completedSurahs: 12,
   };
+
   const [screen, setScreen] = useState(0); // 0: ترتيب، 1: تقييم الحفظ، 2: إلعب
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [completeSuccess, setCompleteSuccess] = useState(false);
@@ -43,7 +42,7 @@ export default function FilChallengePage() {
     setTimeout(() => setCompleteSuccess(false), 2000);
   };
 
-  if (!surah || !Array.isArray(surah.ayat) || !ayat.length) {
+  if (!ayat.length) {
     return <div className="text-center text-red-600 mt-10">السورة غير موجودة أو لا توجد بيانات آيات.</div>;
   }
 
@@ -89,7 +88,7 @@ export default function FilChallengePage() {
               <CompanionCharacter gender={child.gender === 'girl' ? 'girl' : 'boy'} mood={orderSuccess ? 'celebrate' : 'happy'} />
             </div>
             <div className="flex flex-col items-center w-full max-w-3xl mx-auto">
-              <div className="bg-white/95 rounded-3xl shadow-2xl p-10 mb-4 flex flex-col items-center relative border-4 border-yellow-200/60" style={{boxShadow:'0 8px 48px 8px #ffe06655, 0 0 0 8px #fffbe6cc'}}>
+              <div className="bg-white/95 rounded-3xl shadow-2xl p-10 mb-4 flex flex-col items-center relative border-4 border-yellow-200/60" style={{ boxShadow: '0 8px 48px 8px #ffe06655, 0 0 0 8px #fffbe6cc' }}>
                 <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-20">
                   <svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <ellipse cx="60" cy="20" rx="58" ry="16" fill="#fffbe6" fillOpacity="0.7" />
@@ -108,10 +107,13 @@ export default function FilChallengePage() {
               </div>
               {orderSuccess && (
                 <div className="flex flex-col items-center mt-6">
-                  <audio src="/audios/clap.mp3" autoPlay style={{display:'none'}} />
+                  <audio src="/audios/clap.mp3" autoPlay style={{ display: 'none' }} />
                   <div className="text-green-700 font-extrabold text-xl text-center animate-bounce">أحسنت! ⭐ تم اجتياز التحدي الأول</div>
                 </div>
               )}
+            </div>
+            <div className="hidden md:block">
+              <CompanionCharacter gender={child.gender === 'girl' ? 'girl' : 'boy'} mood={orderSuccess ? 'celebrate' : 'happy'} />
             </div>
           </div>
         )}
@@ -126,13 +128,13 @@ export default function FilChallengePage() {
               <button
                 className="bg-yellow-400 hover:bg-yellow-500 text-purple-900 font-bold px-6 py-2 rounded-full shadow mb-2"
                 onClick={() => {
-                  const audio = new Audio(`/audios/fil-full.mp3`);
+                  const audio = new Audio(`/audios/maun-full.mp3`);
                   audio.play();
                 }}
               >
                 ▶️ استمع للسورة كاملة
               </button>
-              <audio src={`/audios/fil-full.mp3`} controls className="w-full max-w-xs" style={{display:'none'}} />
+              <audio src={`/audios/maun-full.mp3`} controls className="w-full max-w-xs" style={{ display: 'none' }} />
             </div>
             <div className="w-full max-w-3xl mx-auto">
               <div className="bg-white/95 rounded-3xl shadow-2xl p-10 mb-4 flex flex-col items-center relative">
@@ -149,7 +151,7 @@ export default function FilChallengePage() {
               </div>
               {completeSuccess && (
                 <div className="flex flex-col items-center mt-6">
-                  <audio src="/audios/clap.mp3" autoPlay style={{display:'none'}} />
+                  <audio src="/audios/clap.mp3" autoPlay style={{ display: 'none' }} />
                   <div className="text-green-700 font-extrabold text-xl text-center animate-bounce">ممتاز! ⭐ حفظك رائع</div>
                 </div>
               )}

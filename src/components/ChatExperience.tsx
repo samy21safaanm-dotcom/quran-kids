@@ -103,7 +103,7 @@ export default function ChatExperience({ character, onComplete }: Props) {
       await showTyping(1200);
       await addBotMessage('السلام عليكم يا صديقي 🌟');
       await showTyping(900);
-      await addBotMessage('مرحبًا بك في عالم نور القرآن ✨');
+      await addBotMessage('مرحبًا بك في عالم نبأ ✨');
       await showTyping(1100);
       await addBotMessage('هنا سنبدأ رحلة مليئة بالقصص والمغامرات وتعلم القرآن بطريقة ممتعة 🎉');
       await showTyping(800);
@@ -190,7 +190,7 @@ export default function ChatExperience({ character, onComplete }: Props) {
               : 'bg-purple-500/20 border border-purple-400/40 text-purple-300'}`}
             animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 2, repeat: Infinity }}
           >
-            {isNoor ? '🌟 نور' : '🌸 لجين'}
+            {isNoor ? '🌟 صالح' : '🌸 هدى'}
           </motion.div>
         </motion.div>
 
@@ -205,7 +205,7 @@ export default function ChatExperience({ character, onComplete }: Props) {
             : 'bg-gradient-to-r from-purple-900/40 to-transparent'}`}>
             <div className="text-2xl">{isNoor ? '🌟' : '🌸'}</div>
             <div>
-              <h3 className="font-bold text-white text-lg">{isNoor ? 'نور' : 'لجين'}</h3>
+              <h3 className="font-bold text-white text-lg">{isNoor ? 'صالح' : 'هدى'}</h3>
               <p className={`text-xs ${isNoor ? 'text-sky-400' : 'text-purple-400'}`}>مرشدك في رحلة القرآن ✨</p>
             </div>
             <div className="mr-auto flex items-center gap-2">

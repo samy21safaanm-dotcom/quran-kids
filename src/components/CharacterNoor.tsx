@@ -25,7 +25,7 @@ export default function CharacterNoor({ size = 280, glowing = false, className =
     >
       <Image
         src="/noor.png"
-        alt="نور"
+        alt="صالح"
         width={size}
         height={size}
         className="object-contain w-full h-full"
