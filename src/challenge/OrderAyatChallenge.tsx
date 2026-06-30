@@ -1,10 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-// (تمت إزالة التكرار)
-// ...existing code...
-import { FaArrowUp, FaArrowDown } from 'react-icons/fa';
-import { AnimatePresence } from 'framer-motion';
-import VerseCard from '../components/VerseCard';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Props {
   ayat: string[];
@@ -12,109 +8,98 @@ interface Props {
 }
 
 function shuffle<T>(arr: T[]): T[] {
-  return arr
-    .map((v) => [Math.random(), v] as [number, T])
-    .sort((a, b) => a[0] - b[0])
-    .map(([, v]) => v);
+  return [...arr].sort(() => Math.random() - 0.5);
 }
 
-
 export default function OrderAyatChallenge({ ayat, onSuccess }: Props) {
-  // مكون عنصر آية قابل للسحب والإفلات
-  function AyahCard({ ayah, idx, moveUp, moveDown, isFirst, isLast }: {
-    ayah: string;
-    idx: number;
-    moveUp: () => void;
-    moveDown: () => void;
-    isFirst: boolean;
-    isLast: boolean;
-  }) {
-    return (
-      <div className="flex items-center gap-2 w-full">
-        <button
-          className={`p-2 rounded-full bg-yellow-100 text-purple-700 hover:bg-yellow-300 transition ${isFirst ? 'opacity-40 cursor-not-allowed' : ''}`}
-          onClick={moveUp}
-          disabled={isFirst}
-          aria-label="تحريك لأعلى"
-        >
-          <FaArrowUp />
-        </button>
-        <button
-          className={`p-2 rounded-full bg-yellow-100 text-purple-700 hover:bg-yellow-300 transition ${isLast ? 'opacity-40 cursor-not-allowed' : ''}`}
-          onClick={moveDown}
-          disabled={isLast}
-          aria-label="تحريك لأسفل"
-        >
-          <FaArrowDown />
-        </button>
-        <div className="flex-1">
-          <VerseCard ayah={ayah} index={idx} />
-        </div>
-      </div>
-    );
-  }
-
-  // إصلاح مشكلة hydration: ترتيب عشوائي فقط على العميل بعد أول render
   const [order, setOrder] = useState<string[]>(ayat);
+  const [selected, setSelected] = useState<number | null>(null);
+
   React.useEffect(() => {
     setOrder(shuffle(ayat));
     // eslint-disable-next-line
   }, [JSON.stringify(ayat)]);
+
   const [success, setSuccess] = useState(false);
 
-  // تحريك العنصر لأعلى
-  const moveUp = (idx: number) => {
-    if (idx === 0) return;
-    const newOrder = [...order];
-    [newOrder[idx - 1], newOrder[idx]] = [newOrder[idx], newOrder[idx - 1]];
-    setOrder(newOrder);
-    checkOrder(newOrder);
-  };
-  // تحريك العنصر لأسفل
-  const moveDown = (idx: number) => {
-    if (idx === order.length - 1) return;
-    const newOrder = [...order];
-    [newOrder[idx + 1], newOrder[idx]] = [newOrder[idx], newOrder[idx + 1]];
-    setOrder(newOrder);
-    checkOrder(newOrder);
-  };
-  // تحقق من الترتيب
-  const checkOrder = (currentOrder: string[]) => {
-    if (JSON.stringify(currentOrder) === JSON.stringify(ayat)) {
-      setSuccess(true);
-      setTimeout(() => {
-        setSuccess(false);
-        onSuccess && onSuccess();
-      }, 1200);
+  const handleTap = (idx: number) => {
+    if (success) return;
+    if (selected === null) {
+      setSelected(idx);
+    } else if (selected === idx) {
+      setSelected(null);
+    } else {
+      const newOrder = [...order];
+      [newOrder[selected], newOrder[idx]] = [newOrder[idx], newOrder[selected]];
+      setOrder(newOrder);
+      setSelected(null);
+      if (JSON.stringify(newOrder) === JSON.stringify(ayat)) {
+        setSuccess(true);
+        setTimeout(() => {
+          setSuccess(false);
+          onSuccess?.();
+        }, 1500);
+      }
     }
   };
 
   return (
     <div className="w-full max-w-lg mx-auto flex flex-col gap-4 items-center justify-center">
-      <div className="bg-yellow-100 rounded-2xl p-4 shadow-lg text-purple-900 font-extrabold text-xl mb-2 tracking-wide border-2 border-yellow-300 flex items-center gap-2">
-        <span role="img" aria-label="ترتيب">🧩</span>
-        اسحب أو استخدم الأسهم لترتيب الآيات بالترتيب الصحيح
+      <div className="bg-gradient-to-r from-yellow-100 to-amber-100 rounded-2xl p-4 shadow text-purple-900 font-extrabold text-lg mb-2 border-2 border-yellow-300 text-center">
+        🧩 اضغط على آية ثم اضغط على آية أخرى لتبديل مكانيهما
       </div>
-      <div className="flex flex-col gap-2 w-full">
+      <div className="flex flex-col gap-3 w-full">
         {order.map((ayah, idx) => (
-          <AyahCard
+          <motion.button
             key={ayah}
-            ayah={ayah}
-            idx={idx}
-            moveUp={() => moveUp(idx)}
-            moveDown={() => moveDown(idx)}
-            isFirst={idx === 0}
-            isLast={idx === order.length - 1}
-          />
+            layout
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            animate={
+              selected === idx
+                ? { scale: 1.04, boxShadow: '0 0 24px 4px #f5c842aa' }
+                : { scale: 1, boxShadow: '0 2px 8px #00000022' }
+            }
+            whileTap={{ scale: 0.97 }}
+            onClick={() => handleTap(idx)}
+            className={`relative w-full px-6 py-5 rounded-2xl font-bold text-xl text-purple-900 shadow-lg transition-colors duration-200
+              ${selected === idx
+                ? 'bg-yellow-200 ring-4 ring-yellow-400'
+                : 'bg-white/90 hover:bg-yellow-50'}
+            `}
+            style={{
+              fontFamily: 'Tajawal, Arial',
+              direction: 'rtl',
+              border: selected === idx ? '2px solid #f5c842' : '2px solid #fde68a',
+            }}
+          >
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-purple-100 text-purple-700 font-black text-sm flex items-center justify-center border border-purple-200">
+              {idx + 1}
+            </span>
+            <span className="block pr-10">{ayah}</span>
+            {selected === idx && (
+              <motion.span
+                animate={{ opacity: [1, 0.4, 1] }}
+                transition={{ repeat: Infinity, duration: 0.8 }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-yellow-500 text-xl"
+              >
+                ✦
+              </motion.span>
+            )}
+          </motion.button>
         ))}
       </div>
       <AnimatePresence>
         {success && (
-          <div className="flex flex-col items-center gap-2 mt-6 animate-bounceIn">
-            <span className="text-5xl text-yellow-400 animate-bounce">✅</span>
-            <div className="text-xl font-black text-purple-700">رائع! رتبت الآيات بنجاح</div>
-            <audio src="/audios/clap.mp3" autoPlay style={{display:'none'}} />
-          </div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex flex-col items-center gap-2 mt-4"
+          >
+            <span className="text-5xl">🎉</span>
+            <div className="text-xl font-black text-green-600">رائع! رتبت الآيات بنجاح 🌟</div>
+            <audio src="/audios/clap.mp3" autoPlay style={{ display: 'none' }} />
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

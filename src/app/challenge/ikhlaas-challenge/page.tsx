@@ -1,9 +1,9 @@
 "use client";
-import React, { useState } from 'react';
-
+import React from 'react';
+import { AL_IKHLAS_AYAT } from '@/lib/juzAmmaData';
 import ChallengeScreen from '@/challenge/index';
 
 export default function IkhlaasChallengePage() {
-  // إعادة استخدام شاشة التحدي الموحدة (تشمل القصة والتحديات)
-  return <ChallengeScreen />;
+  const ayat = AL_IKHLAS_AYAT.map(a => a.arabic);
+  return <ChallengeScreen ayat={ayat} surahName="سورة الإخلاص" surahId={112} />;
 }

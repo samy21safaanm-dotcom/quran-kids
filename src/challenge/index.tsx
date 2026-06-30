@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import ChallengeLayout from './ChallengeLayout';
 import OrderAyatChallenge from './OrderAyatChallenge';
-import CompleteAyahChallenge from './CompleteAyahChallenge';
-import TaqeemHifzChallenge from './CompleteAyahChallenge';
+import AutoRateChallenge from './AutoRateChallenge';
+import FlyingWordsGame from './FlyingWordsGame';
 import type { ChallengeType, ChallengeData, ChildProfile, CompleteAyahChallengeData } from './types';
 import { playSuccessSound } from '../lib/feedbackAudio';
 
@@ -16,20 +16,19 @@ const mockChild: ChildProfile = {
   completedSurahs: 12,
 };
 
-const mockChallenge: ChallengeData = {
-  ayat: [
-    'قُلْ هُوَ اللَّهُ أَحَدٌ',
-    'اللَّهُ الصَّمَدُ',
-    'لَمْ يَلِدْ وَلَمْ يُولَدْ',
-    'وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ',
-  ],
-};
+// Props interface
+interface ChallengeScreenProps {
+  ayat?: string[];
+  surahName?: string;
+  surahId?: number;
+}
 
-const mockCompleteAyah: CompleteAyahChallengeData = {
-  ayahStart: 'قُلْ هُوَ اللَّهُ',
-  ayahRest: 'أَحَدٌ',
-  audioUrl: '/audios/ikhlas-ayah1.mp3', // أضف مسار الصوت إذا توفر
-};
+const defaultAyat = [
+  'قُلْ هُوَ اللَّهُ أَحَدٌ',
+  'اللَّهُ الصَّمَدُ',
+  'لَمْ يَلِدْ وَلَمْ يُولَدْ',
+  'وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ',
+];
 
 import { FaGamepad } from 'react-icons/fa';
 import { getFaIcon } from '../components/FaIconWrapper';
@@ -80,11 +79,20 @@ function MissingWordGame({ ayat }: { ayat: string[] }) {
   );
 }
 
-export default function ChallengeScreen() {
+export default function ChallengeScreen({ 
+  ayat = defaultAyat, 
+  surahName = 'سورة الإخلاص',
+  surahId = 112 
+}: ChallengeScreenProps = {}) {
+  const challengeAyat = ayat && Array.isArray(ayat) && ayat.length > 0 ? ayat : defaultAyat;
+  
+  // Debug logging
+  console.log('🔍 ChallengeScreen Props:', { surahId, surahName, ayatLength: ayat?.length });
+  
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [completeSuccess, setCompleteSuccess] = useState(false);
   const [stars, setStars] = useState(0);
-  const [screen, setScreen] = useState(-1); // -1: القصة السينمائية، 0: ترتيب، 1: تقييم الحفظ، 2: إلعب
+  const [screen, setScreen] = useState(0); // 0: ترتيب، 1: تقييم الحفظ، 2: إلعب
   // عند النجاح في الترتيب
   const handleOrderSuccess = () => {
     setOrderSuccess(true);
@@ -112,32 +120,7 @@ export default function ChallengeScreen() {
   // رابط السورة الكاملة (مثال: ضع mp3 حقيقي لاحقًا)
   const surahAudioUrl = '/audios/ikhlas-full.mp3';
 
-  // شاشة القصة السينمائية وزر ابدأ التحدي
-  if (screen === -1) {
-    return (
-      <div className="min-h-screen flex flex-col relative overflow-hidden">
-        <CinematicBackground />
-        <AnimatedStars />
-        <CinematicTitle />
-        {/* هنا يمكنك إضافة مكون القصة السينمائية أو صورة أو فيديو */}
-        <div className="flex-1 flex flex-col items-center justify-center">
-          <div className="bg-white/80 rounded-3xl shadow-2xl p-10 mb-8 flex flex-col items-center border-4 border-yellow-200/60 max-w-2xl mx-auto">
-            <div className="text-3xl font-bold text-purple-900 mb-4">قصة قصيرة عن سورة الإخلاص</div>
-            <div className="text-lg text-purple-800 mb-6 text-center">كان النبي ﷺ يحب سورة الإخلاص كثيرًا، فهي تعلمنا أن الله واحد لا شريك له. اقرأ القصة أو شاهد الفيديو ثم ابدأ التحدي!</div>
-            {/* يمكنك وضع فيديو أو صورة هنا */}
-          </div>
-          <button
-            className="px-10 py-4 rounded-full font-extrabold text-2xl shadow-lg transition bg-yellow-400 text-purple-900 border-4 border-yellow-400 hover:bg-yellow-300"
-            onClick={() => setScreen(0)}
-          >
-            ابدأ التحدي
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // شاشة التحديات بعد الضغط على ابدأ التحدي
+  // شاشة التحديات
   return (
     <div
       className="min-h-screen flex flex-col relative overflow-hidden"
@@ -150,6 +133,17 @@ export default function ChallengeScreen() {
     >
       <CinematicBackground />
       <AnimatedStars />
+      <div className="absolute top-4 left-4 z-40">
+        <button
+          type="button"
+          onClick={() => {
+            window.location.href = '/';
+          }}
+          className="px-5 py-2 rounded-full font-extrabold text-base shadow-lg border-2 border-yellow-300 bg-white/90 text-purple-900 hover:bg-yellow-100 transition"
+        >
+          🏠 الرئيسية
+        </button>
+      </div>
       {/* العنوان الرئيسي */}
       {/* أزرار التنقل بين الشاشات */}
       <div className="w-full flex justify-center gap-6 pt-8 pb-4 z-30">
@@ -196,7 +190,7 @@ export default function ChallengeScreen() {
                 {getFaIcon('FaStar', 'absolute -top-6 -right-6 text-yellow-400 text-3xl animate-spin-slow')}
                 {getFaIcon('FaStar', 'absolute -top-6 -left-6 text-yellow-300 text-xl')}
                 {getFaIcon('FaStar', 'absolute bottom-2 left-2 text-yellow-200 text-lg')}
-                <OrderAyatChallenge ayat={mockChallenge.ayat} onSuccess={handleOrderSuccess} />
+                <OrderAyatChallenge ayat={challengeAyat} onSuccess={handleOrderSuccess} />
                 {/* صندوق مكافآت عند النجاح */}
                 {orderSuccess && (
                   <div className="absolute left-1/2 -translate-x-1/2 -bottom-32 z-30 animate-fade-in">
@@ -219,58 +213,35 @@ export default function ChallengeScreen() {
         )}
         {screen===1 && (
           <div className="w-full flex flex-col items-center justify-center">
-            <div className="mb-8 flex flex-col items-center">
-              <div className="rounded-full bg-purple-200 shadow-lg flex items-center justify-center w-28 h-28 mb-2 border-4 border-white">{getFaIcon('FaMicrophone', 'text-purple-700 text-5xl')}</div>
-              <div className="text-4xl font-black text-purple-900 drop-shadow mb-2">تقييم الحفظ</div>
-              <div className="mb-4 text-lg text-purple-700 font-bold">سجل تلاوتك للآية المطلوبة أو استمع للسورة كاملة</div>
+            <div className="mb-6 flex flex-col items-center">
+              <div className="rounded-full bg-purple-200 shadow-lg flex items-center justify-center w-20 h-20 mb-2 border-4 border-white text-4xl">🎤</div>
+              <div className="text-3xl font-black text-purple-900 drop-shadow mb-1">سجل وقيّم نفسك</div>
+              <div className="text-base text-purple-700 font-bold">اقرأ كل آية بصوت واضح ثم قيّم تلاوتك</div>
             </div>
-            <div className="mb-4 flex flex-col items-center">
-              <button
-                className="bg-yellow-400 hover:bg-yellow-500 text-purple-900 font-bold px-6 py-2 rounded-full shadow mb-2"
-                onClick={() => {
-                  const audio = new Audio(surahAudioUrl);
-                  audio.play();
-                }}
-              >
-                ▶️ استمع للسورة كاملة
-              </button>
-              <audio src={surahAudioUrl} controls className="w-full max-w-xs" style={{display:'none'}} />
-            </div>
-            <div className="w-full max-w-3xl mx-auto">
-              <div className="bg-white/95 rounded-3xl shadow-2xl p-10 mb-4 flex flex-col items-center relative">
-                {getFaIcon('FaStar', 'absolute -top-6 -right-6 text-yellow-400 text-3xl animate-spin-slow')}
-                {getFaIcon('FaStar', 'absolute -top-6 -left-6 text-yellow-300 text-xl')}
-                {getFaIcon('FaStar', 'absolute bottom-2 left-2 text-yellow-200 text-lg')}
-                <TaqeemHifzChallenge
-                  ayahStart={mockCompleteAyah.ayahStart}
-                  ayahRest={mockChallenge.ayat.join(' ')}
-                  audioUrl={mockCompleteAyah.audioUrl}
+            <div className="w-full max-w-2xl mx-auto">
+              <div className="bg-white/95 rounded-3xl shadow-2xl p-8 mb-4 flex flex-col items-center relative border-2 border-yellow-200">
+                <AutoRateChallenge
+                  ayat={challengeAyat}
                   onSuccess={handleCompleteSuccess}
-                  onFail={() => {}}
                 />
               </div>
-              {completeSuccess && (
-                <div className="flex flex-col items-center mt-6">
-                  <audio src="/audios/clap.mp3" autoPlay style={{display:'none'}} />
-                  <div className="text-green-700 font-extrabold text-xl text-center animate-bounce">ممتاز! ⭐ حفظك رائع</div>
-                </div>
-              )}
             </div>
           </div>
         )}
         {screen===2 && (
           <div className="w-full flex flex-col items-center justify-center">
-            <div className="mb-8 flex flex-col items-center">
-              <div className="rounded-full bg-yellow-200 shadow-lg flex items-center justify-center w-28 h-28 mb-2 border-4 border-white">{getFaIcon('FaSmile', 'text-yellow-600 text-5xl')}</div>
-              <div className="text-4xl font-black text-purple-900 drop-shadow mb-2">إلعب واحفظ السورة</div>
-              <div className="mb-4 text-lg text-purple-700 font-bold">اختر الكلمة الناقصة في كل آية لتتقن الحفظ بطريقة ممتعة!</div>
+            <div className="mb-6 flex flex-col items-center">
+              <div className="rounded-full bg-yellow-200 shadow-lg flex items-center justify-center w-20 h-20 mb-2 border-4 border-white text-4xl">🎮</div>
+              <div className="text-3xl font-black text-purple-900 drop-shadow mb-1">اصطد الكلمة!</div>
+              <div className="text-base text-purple-700 font-bold">اضغط على الكلمة الطائرة الصحيحة لتكمل الآية</div>
             </div>
-            <div className="w-full max-w-3xl mx-auto">
-              <div className="bg-white/95 rounded-3xl shadow-2xl p-10 mb-4 flex flex-col items-center relative">
-                {getFaIcon('FaStar', 'absolute -top-6 -right-6 text-yellow-400 text-3xl animate-spin-slow')}
-                {getFaIcon('FaStar', 'absolute -top-6 -left-6 text-yellow-300 text-xl')}
-                {getFaIcon('FaStar', 'absolute bottom-2 left-2 text-yellow-200 text-lg')}
-                <MissingWordGame ayat={mockChallenge.ayat} />
+            <div className="w-full max-w-2xl mx-auto">
+              <div className="rounded-3xl shadow-2xl p-8 mb-4 flex flex-col items-center relative border-2 border-purple-400/40"
+                style={{ background: 'rgba(49,10,130,0.75)' }}>
+                <FlyingWordsGame
+                  ayat={challengeAyat}
+                  onSuccess={() => { setStars(s => Math.max(s, 3)); playSuccessSound(); }}
+                />
               </div>
             </div>
           </div>

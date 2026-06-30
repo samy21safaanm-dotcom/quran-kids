@@ -88,6 +88,10 @@ function Particle({ color }: { color: string }) {
 // ── Story Panel ───────────────────────────────────────────────────────────────
 type StoryPhase = 'idle' | 'playing' | 'done';
 
+function getChallengeLink(surahId: number) {
+  return `/challenge/${surahId}`;
+}
+
 function getStoryVideoSrc(surah: Surah) {
   const explicitMap: Record<number, string> = {
     92: 'al-layl-story.mp4',
@@ -345,14 +349,12 @@ function StoryPanel({ surah, accent }: { surah: Surah; accent: string }) {
             </motion.div>
             <motion.div className="flex gap-3"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.1 }}>
-              {surah.id === 112 && (
-                <motion.button className="px-7 py-3 rounded-2xl font-black text-base text-black"
-                  style={{ background: `linear-gradient(135deg, ${accent}, #F5C842)` }}
-                  whileHover={{ scale: 1.06, y: -2 }} whileTap={{ scale: 0.95 }}
-                  onClick={() => window.location.href = '/challenge/ikhlaas-challenge'}>
-                  ابدأ التحدي 🚀
-                </motion.button>
-              )}
+              <motion.button className="px-7 py-3 rounded-2xl font-black text-base text-black"
+                style={{ background: `linear-gradient(135deg, ${accent}, #F5C842)` }}
+                whileHover={{ scale: 1.06, y: -2 }} whileTap={{ scale: 0.95 }}
+                onClick={() => window.location.href = getChallengeLink(surah.id)}>
+                ابدأ التحدي 🚀
+              </motion.button>
               <motion.button onClick={handleReplay}
                 className="px-5 py-3 rounded-2xl font-bold text-sm text-white/60 hover:text-white glass-card"
                 whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.95 }}>
