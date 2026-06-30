@@ -279,10 +279,16 @@ export default function ChatExperience({ character, onComplete }: Props) {
                   <motion.button
                     onClick={handleNameSubmit}
                     disabled={!inputValue.trim()}
-                    className={`px-6 py-3 rounded-2xl font-bold text-lg transition-all ${inputValue.trim() ? 'btn-gold' : 'bg-white/10 text-white/30 cursor-not-allowed'}`}
+                    aria-label="دخول"
+                    className={`min-w-28 px-5 py-3 rounded-2xl font-black text-base md:text-lg whitespace-nowrap transition-all ${inputValue.trim() ? 'btn-gold' : 'bg-white/10 text-white/30 cursor-not-allowed'}`}
                     whileHover={inputValue.trim() ? { scale: 1.05 } : {}}
                     whileTap={inputValue.trim()   ? { scale: 0.95 } : {}}
-                  >✓</motion.button>
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <span>ادخل</span>
+                      <span aria-hidden="true">🚪</span>
+                    </span>
+                  </motion.button>
                 </motion.div>
               )}
 

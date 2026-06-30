@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Surah, Ayah } from '@/lib/juzAmmaData';
 import { RECITERS } from '@/lib/juzAmmaData';
@@ -93,26 +93,11 @@ function getChallengeLink(surahId: number) {
 }
 
 function getStoryVideoSrc(surah: Surah) {
-  const explicitMap: Record<number, string> = {
-    92: 'al-layl-story.mp4',
-    93: 'ad-duha-story.mp4',
-    94: 'ash-sharh-story.mp4',
-    95: 'at-tin-story.mp4',
-    105: 'al-feel-story.mp4',
-    108: 'al-Kawthar-story.mp4',
-    109: 'al-Kafirun-story.mp4',
-    110: 'al-nasr-story.mp4',
-    111: 'al-masad-story.mp4',
-    112: 'al-ikhlas-story.mp4',
-    113: 'al-falaq-story.mp4',
-    114: 'al-nas-story.mp4',
-  };
-
-  const fileName = explicitMap[surah.id] ?? surah.story ?? '';
-  return `/videos/${encodeURIComponent(fileName)}`;
+  const fileName = surah.story?.trim() ?? '';
+  return fileName ? `/videos/${fileName}` : '';
 }
 
-function StoryPanel({ surah, accent }: { surah: Surah; accent: string }) {
+const StoryPanel = memo(function StoryPanel({ surah, accent }: { surah: Surah; accent: string }) {
   const [phase, setPhase] = useState<StoryPhase>('idle');
   const [videoError, setVideoError] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -124,19 +109,14 @@ function StoryPanel({ surah, accent }: { surah: Surah; accent: string }) {
     const video = videoRef.current;
     if (!video) return;
 
-    const nextSrc = getStoryVideoSrc(surah);
-    if (video.getAttribute('src') !== nextSrc) {
-      video.setAttribute('src', nextSrc);
-      video.load();
-    }
-
     setPhase('playing');
     setVideoError(false);
     try {
-      video.currentTime = 0;
+      if (video.currentTime > 0 && Number.isFinite(video.duration) && video.duration > 0) {
+        video.currentTime = 0;
+      }
       video.muted = false;
       video.volume = 1;
-      await new Promise(resolve => setTimeout(resolve, 200));
       await video.play();
       setPlaying(true);
     } catch {
@@ -162,6 +142,9 @@ function StoryPanel({ surah, accent }: { surah: Surah; accent: string }) {
   const handleLoadedMetadata = () => {
     const v = videoRef.current;
     if (v) setDuration(v.duration);
+  };
+  const handleCanPlay = () => {
+    // Keep handler minimal to avoid interfering with user-initiated playback.
   };
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = videoRef.current;
@@ -227,7 +210,8 @@ function StoryPanel({ surah, accent }: { surah: Surah; accent: string }) {
         style={{ objectFit: 'cover', opacity: phase === 'playing' && !videoError ? 1 : 0,
           transition: 'opacity 0.5s ease', pointerEvents: phase === 'playing' ? 'auto' : 'none' }}
         playsInline preload="auto" onEnded={handleEnded} onError={handleError}
-        onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} />
+        onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata}
+        onCanPlay={handleCanPlay} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
       {/* Controls */}
       {phase === 'playing' && !videoError && (
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center w-full max-w-xl">
@@ -274,7 +258,7 @@ function StoryPanel({ surah, accent }: { surah: Surah; accent: string }) {
             <motion.div className="text-8xl relative z-10"
               animate={{ y: [-10, 10, -10], rotate: [-4, 4, -4] }}
               transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}>
-              🐘
+              {surah.icon}
             </motion.div>
             <div className="relative z-10 px-6">
               <h3 className="text-white font-black text-2xl mb-2">🎬 قصة سورة {surah.name}</h3>
@@ -305,7 +289,7 @@ function StoryPanel({ surah, accent }: { surah: Surah; accent: string }) {
           <motion.div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10"
             style={{ background: `linear-gradient(135deg, ${accent}18, rgba(2,8,23,0.9))` }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <div className="text-6xl">🐘</div>
+            <div className="text-6xl">{surah.icon}</div>
             <p className="text-white font-black text-xl">قصة أصحاب الفيل</p>
             <p className="text-white/50 text-sm text-center px-6">
               تعذر تشغيل القصة حالياً.<br />
@@ -366,7 +350,7 @@ function StoryPanel({ surah, accent }: { surah: Surah; accent: string }) {
       </AnimatePresence>
     </div>
   );
-}
+});
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function SurahPage({ surah, ayat, onBack }: Props) {
