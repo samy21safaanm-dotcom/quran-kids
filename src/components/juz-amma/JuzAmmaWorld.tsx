@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { JUZ_AMMA, type Surah } from '@/lib/juzAmmaData';
@@ -43,8 +43,19 @@ export default function JuzAmmaWorld({
 }: Props) {
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const [filter,    setFilter]    = useState<'all' | 'done' | 'inprogress'>('all');
+  const [showGuide, setShowGuide] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const isNoor = character === 'noor';
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const key = 'juz-amma-guide-seen-v1';
+    const seen = window.localStorage.getItem(key) === 'true';
+    if (!seen) {
+      setShowGuide(true);
+      window.localStorage.setItem(key, 'true');
+    }
+  }, []);
 
   const filtered = JUZ_AMMA.filter(s => {
     if (filter === 'done')       return s.progress === 100;
@@ -230,6 +241,27 @@ export default function JuzAmmaWorld({
                 <span>{JUZ_AMMA.filter(s => s.progress === 0).length} لم تبدأ</span>
               </div>
             </motion.div>
+
+            <motion.div
+              className="glass-card"
+              style={{
+                margin: '14px auto 0',
+                borderRadius: 999,
+                padding: '8px 14px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                direction: 'rtl',
+              }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9 }}
+            >
+              <span style={{ fontSize: 15 }}>💡</span>
+              <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: 700 }}>
+                اضغط "تعليمات" لتعرف كيف تستمع وتتعلّم وتبدأ التحدي
+              </span>
+            </motion.div>
           </motion.div>
 
           {/* ── FILTER TABS ── */}
@@ -301,6 +333,148 @@ export default function JuzAmmaWorld({
 
         </div>
       </div>
+
+      <motion.button
+        onClick={() => setShowGuide(true)}
+        className="glass-card"
+        style={{
+          position: 'fixed',
+          right: 18,
+          bottom: 'max(18px, calc(env(safe-area-inset-bottom) + 92px))',
+          zIndex: 70,
+          borderRadius: 999,
+          padding: '10px 14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          direction: 'rtl',
+          color: '#fff',
+          fontWeight: 800,
+          fontSize: 14,
+          pointerEvents: 'auto',
+          touchAction: 'manipulation',
+        }}
+        aria-label="فتح التعليمات"
+        whileHover={{ scale: 1.06, y: -2 }}
+        whileTap={{ scale: 0.95 }}
+        animate={{ boxShadow: ['0 0 0 rgba(245,200,66,0)', '0 0 25px rgba(245,200,66,0.35)', '0 0 0 rgba(245,200,66,0)'] }}
+        transition={{ duration: 2.2, repeat: Infinity }}
+      >
+        <span>❔</span>
+        <span>تعليمات</span>
+      </motion.button>
+
+      <AnimatePresence>
+        {showGuide && (
+          <motion.div
+            className="fixed inset-0 z-[80]"
+            style={{ background: 'rgba(2,8,23,0.75)', backdropFilter: 'blur(6px)' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowGuide(false)}
+          >
+            <motion.div
+              className="glass-card"
+              style={{
+                maxWidth: 860,
+                margin: '6vh auto 0',
+                borderRadius: 24,
+                padding: 20,
+                border: '1px solid rgba(245,200,66,0.35)',
+                boxShadow: '0 20px 70px rgba(0,0,0,0.4)',
+              }}
+              initial={{ opacity: 0, y: 24, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 180, damping: 18 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, direction: 'rtl', marginBottom: 14 }}>
+                <div>
+                  <h2 style={{ color: '#fff', fontWeight: 900, fontSize: 22 }}>كيف أستخدم عالم جزء عم؟</h2>
+                  <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14 }}>خطوات سهلة وسريعة يا بطل 🌟</p>
+                </div>
+                <button
+                  onClick={() => setShowGuide(false)}
+                  className="glass-card"
+                  style={{ borderRadius: 999, width: 34, height: 34, color: 'rgba(255,255,255,0.8)', fontWeight: 900 }}
+                  aria-label="إغلاق التعليمات"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                  gap: 12,
+                  direction: 'rtl',
+                }}
+              >
+                {[
+                  {
+                    icon: '1️⃣',
+                    title: 'اختر السورة',
+                    text: 'اضغط على بطاقة أي سورة للدخول إليها.',
+                  },
+                  {
+                    icon: '2️⃣',
+                    title: 'مشغل التلاوة',
+                    text: 'اختر بين صوت المنشاوي أو مشاري العفاسي ثم اضغط تشغيل.',
+                  },
+                  {
+                    icon: '3️⃣',
+                    title: 'قصة السورة',
+                    text: 'كل سورة عليها علامة 🎬 تحتوي قصة ممتعة عن السورة.',
+                  },
+                  {
+                    icon: '4️⃣',
+                    title: 'التفسير والتحدي',
+                    text: 'اضغط على الآية لعرض تفسيرها، وبعدها ابدأ تحدي السورة.',
+                  },
+                ].map(step => (
+                  <motion.div
+                    key={step.title}
+                    style={{
+                      borderRadius: 16,
+                      border: '1px solid rgba(255,255,255,0.14)',
+                      background: 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))',
+                      padding: 12,
+                      minHeight: 132,
+                    }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.28 }}
+                  >
+                    <div style={{ fontSize: 28, marginBottom: 8 }}>{step.icon}</div>
+                    <h3 style={{ color: '#fff', fontWeight: 900, fontSize: 15, marginBottom: 6 }}>{step.title}</h3>
+                    <p style={{ color: 'rgba(255,255,255,0.72)', fontSize: 13, lineHeight: 1.5 }}>{step.text}</p>
+                  </motion.div>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 14 }}>
+                <motion.button
+                  onClick={() => setShowGuide(false)}
+                  style={{
+                    borderRadius: 999,
+                    padding: '10px 18px',
+                    fontWeight: 900,
+                    color: '#1f2937',
+                    background: 'linear-gradient(135deg, #F5C842, #F59E0B)',
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  فهمت، لنبدأ 🚀
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

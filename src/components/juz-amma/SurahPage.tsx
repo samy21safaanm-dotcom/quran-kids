@@ -11,9 +11,45 @@ interface Props {
   onBack: () => void;
 }
 
+type TourTarget = 'audio' | 'reciter' | 'story' | 'ayat' | 'challenge';
+
+interface TourStep {
+  id: TourTarget;
+  title: string;
+  text: string;
+}
+
+const TOUR_STEPS: TourStep[] = [
+  {
+    id: 'audio',
+    title: 'مشغل التلاوة',
+    text: 'من هنا تسمع السورة، اضغط زر التشغيل ▶ للإستماع.',
+  },
+  {
+    id: 'reciter',
+    title: 'اختيار القارئ',
+    text: 'يمكنك التبديل بين المنشاوي والعفاسي بسهولة.',
+  },
+  {
+    id: 'story',
+    title: 'قصة السورة',
+    text: 'كل سورة عندها قصة ممتعة تساعد الطفل على الفهم.',
+  },
+  {
+    id: 'ayat',
+    title: 'الآيات والتفسير',
+    text: 'اضغط على أي آية ليظهر تفسيرها بطريقة مبسطة.',
+  },
+  {
+    id: 'challenge',
+    title: 'تحدي السورة',
+    text: 'بعد التعلم اضغط ابدأ التحدي لتثبيت الحفظ والمهارة.',
+  },
+];
+
 const RECITER_SERVERS: Record<string, string> = {
   minshawi: 'https://server10.mp3quran.net/minsh/',
-  afasy:    'https://server10.mp3quran.net/Afasy/',
+  afasy:    'https://server8.mp3quran.net/afs/',
 };
 
 function surahAudioUrl(server: string, id: number) {
@@ -357,10 +393,65 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
   const [activeAyah,  setActiveAyah]  = useState<number | null>(null);
   const [reciterId,   setReciterId]   = useState(RECITERS[0].id);
   const [showRecMenu, setShowRecMenu] = useState(false);
+  const [showTour,    setShowTour]    = useState(false);
+  const [tourStep,    setTourStep]    = useState(0);
+
+  const audioCardRef = useRef<HTMLDivElement | null>(null);
+  const reciterRef = useRef<HTMLDivElement | null>(null);
+  const storyRef = useRef<HTMLDivElement | null>(null);
+  const ayatRef = useRef<HTMLDivElement | null>(null);
+  const challengeRef = useRef<HTMLDivElement | null>(null);
 
   const accent  = surah.color;
   const reciter = RECITERS.find(r => r.id === reciterId) ?? RECITERS[0];
   const player  = useAudioPlayer(surahAudioUrl(RECITER_SERVERS[reciterId], surah.id));
+
+  const targetByStep: Record<TourTarget, React.RefObject<HTMLDivElement | null>> = {
+    audio: audioCardRef,
+    reciter: reciterRef,
+    story: storyRef,
+    ayat: ayatRef,
+    challenge: challengeRef,
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const key = 'juz-amma-surah-tour-seen-v1';
+    const seen = window.localStorage.getItem(key) === 'true';
+    if (!seen) {
+      setShowTour(true);
+      setTourStep(0);
+      window.localStorage.setItem(key, 'true');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!showTour) return;
+    const current = TOUR_STEPS[tourStep];
+    const el = targetByStep[current.id].current;
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [showTour, tourStep]);
+
+  const isStepActive = useCallback((id: TourTarget) => {
+    if (!showTour) return false;
+    return TOUR_STEPS[tourStep]?.id === id;
+  }, [showTour, tourStep]);
+
+  const nextTourStep = useCallback(() => {
+    setTourStep(prev => {
+      if (prev >= TOUR_STEPS.length - 1) {
+        setShowTour(false);
+        return prev;
+      }
+      return prev + 1;
+    });
+  }, []);
+
+  const prevTourStep = useCallback(() => {
+    setTourStep(prev => Math.max(prev - 1, 0));
+  }, []);
 
   return (
     <motion.div className="fixed inset-0 z-50 overflow-hidden"
@@ -410,6 +501,7 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
 
           {/* LEFT — Story */}
           <motion.div className="hidden lg:flex flex-col flex-shrink-0"
+            ref={storyRef}
             style={{ width: '50%', borderRight: `1px solid ${accent}25`, overflow: 'hidden' }}
             initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.6 }}>
             <div style={{ width: '100%', height: '100%' }}>
@@ -434,6 +526,7 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
               {/* Mobile story */}
               {surah.story && (
                 <motion.div className="lg:hidden mb-6 rounded-2xl overflow-hidden"
+                  ref={storyRef}
                   style={{ minHeight: 280, background: `${accent}10`, border: `1px solid ${accent}25` }}
                   initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
                   <StoryPanel surah={surah} accent={accent} />
@@ -442,8 +535,19 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
 
               {/* Audio Player */}
               <motion.div className="glass-card rounded-3xl p-5 mb-6 border"
+                ref={audioCardRef}
                 style={{ borderColor: `${accent}30` }}
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+                {isStepActive('audio') && (
+                  <motion.div
+                    className="mb-3 rounded-2xl px-3 py-2 text-xs font-bold"
+                    style={{ background: `${accent}20`, border: `1px solid ${accent}60`, color: '#fff' }}
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    👈 هذا هو مشغل التلاوة
+                  </motion.div>
+                )}
                 <div className="flex items-center gap-3 mb-4">
                   <span className="text-xl">🎵</span>
                   <h3 className="text-white font-bold">مشغل التلاوة</h3>
@@ -455,8 +559,27 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
                   {player.error && <span className="text-red-400 text-xs mr-auto">تعذّر تحميل الصوت</span>}
                 </div>
 
+                <div className="mb-3 flex flex-wrap gap-2">
+                  <span className="text-[11px] px-2.5 py-1 rounded-full border border-yellow-400/35 bg-yellow-400/10 text-yellow-300">
+                    🎙️ يوجد صوتان: المنشاوي + العفاسي
+                  </span>
+                  <span className="text-[11px] px-2.5 py-1 rounded-full border border-white/15 bg-white/5 text-white/70">
+                    اختر القارئ ثم اضغط ▶
+                  </span>
+                </div>
+
                 {/* Reciter */}
-                <div className="relative mb-4">
+                <div
+                  ref={reciterRef}
+                  className="relative mb-4"
+                  style={isStepActive('reciter') ? { border: `1px dashed ${accent}90`, borderRadius: 14, padding: 4 } : undefined}
+                >
+                  {isStepActive('reciter') && (
+                    <motion.div className="mb-2 text-xs font-bold" style={{ color: '#FCD34D' }}
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                      👈 اضغط هنا لتغيير القارئ
+                    </motion.div>
+                  )}
                   <motion.button onClick={() => setShowRecMenu(v => !v)}
                     className="w-full flex items-center justify-between glass-card rounded-xl px-4 py-3 text-white hover:bg-white/10 transition-all"
                     whileHover={{ scale: 1.01 }}>
@@ -543,14 +666,33 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
 
               {/* Ayat */}
               <motion.div className="mushaf-container mb-6"
+                ref={ayatRef}
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
                 <div className="text-center border-b pb-4 mb-4" style={{ borderColor: `${accent}20` }}>
                   <p className="text-white/60 text-sm font-bold">سورة {surah.name}</p>
                   <div className="flex justify-center gap-4 mt-1 text-xs text-white/30">
                     <span>{surah.ayat} آيات</span><span>•</span><span>{surah.type}</span>
                   </div>
+                  <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                    <span className="text-[11px] px-2.5 py-1 rounded-full border border-sky-300/35 bg-sky-400/10 text-sky-200">
+                      👆 اضغط على الآية لعرض التفسير
+                    </span>
+                    <span className="text-[11px] px-2.5 py-1 rounded-full border border-emerald-300/35 bg-emerald-400/10 text-emerald-200">
+                      🚀 بعد التعلم ابدأ تحدي السورة
+                    </span>
+                  </div>
                 </div>
                 <div className="space-y-1">
+                  {isStepActive('ayat') && (
+                    <motion.div
+                      className="mb-3 rounded-2xl px-3 py-2 text-xs font-bold"
+                      style={{ background: `${accent}18`, border: `1px solid ${accent}55`, color: '#fff' }}
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
+                      👆 اضغط على أي آية ليظهر تفسيرها مباشرة
+                    </motion.div>
+                  )}
                   {ayat.map((ayah, i) => (
                     <motion.div key={ayah.number}
                       initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 + i * 0.1 }}>
@@ -602,8 +744,28 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
 
               {/* Achievements */}
               <motion.div className="glass-card rounded-3xl p-5 mb-6"
+                ref={challengeRef}
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
                 <h3 className="text-white font-bold mb-4 flex items-center gap-2"><span>🏆</span> إنجازات السورة</h3>
+                {isStepActive('challenge') && (
+                  <motion.div
+                    className="mb-4 rounded-2xl px-3 py-2 text-xs font-bold"
+                    style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.5)', color: '#D1FAE5' }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    🚀 بعد الانتهاء اضغط الزر التالي لبدء تحدي السورة
+                    <div className="mt-2">
+                      <button
+                        onClick={() => window.location.href = getChallengeLink(surah.id)}
+                        className="px-3 py-1.5 rounded-xl text-black font-black text-xs"
+                        style={{ background: 'linear-gradient(135deg, #34D399, #F5C842)' }}
+                      >
+                        ابدأ التحدي
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
                 <div className="grid grid-cols-3 gap-3">
                   {[
                     { icon: '👂', label: 'استمعت', done: surah.progress > 0 },
@@ -622,6 +784,89 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
           </div>
         </div>
       </div>
+
+      <motion.button
+        onClick={() => { setShowTour(true); setTourStep(0); }}
+        className="glass-card"
+        style={{
+          position: 'fixed',
+          left: 16,
+          bottom: 16,
+          zIndex: 60,
+          borderRadius: 999,
+          padding: '8px 12px',
+          color: '#fff',
+          fontSize: 13,
+          fontWeight: 800,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+        }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <span>🧭</span>
+        <span>جولة سريعة</span>
+      </motion.button>
+
+      <AnimatePresence>
+        {showTour && (
+          <motion.div
+            className="fixed inset-0 z-[75] pointer-events-none"
+            style={{ background: 'rgba(2,8,23,0.45)' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="glass-card pointer-events-auto"
+              style={{
+                position: 'fixed',
+                right: 14,
+                bottom: 14,
+                width: 'min(420px, calc(100vw - 28px))',
+                borderRadius: 20,
+                padding: 14,
+                border: `1px solid ${accent}60`,
+              }}
+              initial={{ opacity: 0, y: 14, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.95 }}
+            >
+              <p className="text-[11px] text-white/50 mb-1">
+                خطوة {tourStep + 1} من {TOUR_STEPS.length}
+              </p>
+              <h4 className="text-white font-black text-base mb-1">{TOUR_STEPS[tourStep].title}</h4>
+              <p className="text-white/75 text-sm mb-3">{TOUR_STEPS[tourStep].text}</p>
+
+              <div className="flex items-center justify-between gap-2">
+                <button
+                  onClick={() => setShowTour(false)}
+                  className="px-3 py-1.5 rounded-xl text-xs text-white/70 hover:text-white border border-white/20"
+                >
+                  تخطي
+                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={prevTourStep}
+                    disabled={tourStep === 0}
+                    className="px-3 py-1.5 rounded-xl text-xs border border-white/20 text-white disabled:opacity-40"
+                  >
+                    السابق
+                  </button>
+                  <button
+                    onClick={nextTourStep}
+                    className="px-3 py-1.5 rounded-xl text-xs font-black text-black"
+                    style={{ background: `linear-gradient(135deg, ${accent}, #F5C842)` }}
+                  >
+                    {tourStep === TOUR_STEPS.length - 1 ? 'إنهاء' : 'التالي'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
