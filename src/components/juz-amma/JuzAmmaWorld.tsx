@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { JUZ_AMMA, type Surah } from '@/lib/juzAmmaData';
@@ -46,6 +46,16 @@ export default function JuzAmmaWorld({
   const [showGuide, setShowGuide] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const isNoor = character === 'noor';
+  const skyStars = useMemo(
+    () => Array.from({ length: 60 }, () => ({
+      size: Math.random() * 2.5 + 0.5,
+      left: Math.random() * 100,
+      top: Math.random() * 60,
+      duration: Math.random() * 3 + 2,
+      delay: Math.random() * 4,
+    })),
+    [],
+  );
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -69,23 +79,23 @@ export default function JuzAmmaWorld({
 
   return (
     <motion.div
-      className="fixed inset-0 z-40 overflow-hidden"
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      transition={{ duration: 0.7 }}
+      className="fixed inset-0 z-[85] overflow-hidden"
+      initial={false} animate={{ opacity: 1 }} exit={{ opacity: 1 }}
+      transition={{ duration: 0 }}
     >
       {/* ── Background ── */}
       <div className="absolute inset-0 bg-gradient-to-b from-[#0a0520] via-[#0d1b3e] to-[#020817]" />
 
-      {Array.from({ length: 60 }).map((_, i) => (
+      {skyStars.map((star, i) => (
         <motion.div key={i} className="absolute rounded-full bg-white"
           style={{
-            width:  Math.random() * 2.5 + 0.5,
-            height: Math.random() * 2.5 + 0.5,
-            left:   `${Math.random() * 100}%`,
-            top:    `${Math.random() * 60}%`,
+            width:  star.size,
+            height: star.size,
+            left:   `${star.left}%`,
+            top:    `${star.top}%`,
           }}
           animate={{ opacity: [0.2, 1, 0.2], scale: [0.8, 1.3, 0.8] }}
-          transition={{ duration: Math.random() * 3 + 2, repeat: Infinity, delay: Math.random() * 4 }} />
+          transition={{ duration: star.duration, repeat: Infinity, delay: star.delay }} />
       ))}
 
       <Cloud x="5%"  y="8%"  size={300} delay={0} />
@@ -112,23 +122,24 @@ export default function JuzAmmaWorld({
         className="relative z-10 h-full overflow-y-auto"
         style={{ direction: 'ltr' }}
       >
-        <div style={{ maxWidth: 1152, margin: '0 auto', padding: '0 16px 64px' }}>
+        <div className="w-full flex justify-center">
+          <div className="w-full max-w-[72rem] px-3 sm:px-4 md:px-6 pb-16" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
 
           {/* ── STICKY HEADER ── */}
           <motion.header
             className="sticky top-0 z-30"
             style={{
-              paddingTop: 16,
-              paddingBottom: 12,
+              paddingTop: 12,
+              paddingBottom: 10,
               background: 'linear-gradient(to bottom, rgba(10,5,32,0.95) 80%, transparent)',
             }}
             initial={{ y: -40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.6 }}
           >
             {/* Absolute-positioned layout: back on left, title in TRUE centre, stats on right */}
-            <div style={{ position: 'relative', height: 48, display: 'flex', alignItems: 'center' }}>
+            <div style={{ position: 'relative', minHeight: 48, display: 'flex', alignItems: 'center' }}>
 
               {/* Left — back + logo */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, zIndex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, zIndex: 1, minWidth: 0 }}>
                 <motion.button
                   onClick={onBack}
                   className="glass-card text-white/70 hover:text-white transition-colors"
@@ -137,7 +148,7 @@ export default function JuzAmmaWorld({
                 >
                   ←
                 </motion.button>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div className="hidden sm:flex" style={{ alignItems: 'center', gap: 6, minWidth: 0 }}>
                   <span style={{ fontSize: 20 }}>📖</span>
                   <div style={{ direction: 'rtl', textAlign: 'right' }}>
                     <p style={{ color: '#fff', fontWeight: 900, fontSize: 12, lineHeight: 1 }}>نبأ</p>
@@ -147,7 +158,7 @@ export default function JuzAmmaWorld({
               </div>
 
               {/* Centre — absolutely positioned so it's always in the middle of the full width */}
-              <div style={{
+              <div className="hidden md:flex" style={{
                 position: 'absolute',
                 left: '50%',
                 transform: 'translateX(-50%)',
@@ -162,17 +173,31 @@ export default function JuzAmmaWorld({
                 <span style={{ fontSize: 18 }}>🌙</span>
               </div>
 
+              <div className="flex md:hidden" style={{
+                position: 'absolute',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                alignItems: 'center',
+                gap: 4,
+                direction: 'rtl',
+                pointerEvents: 'none',
+              }}>
+                <span style={{ fontSize: 14 }}>🌙</span>
+                <p style={{ color: '#fff', fontWeight: 900, fontSize: 13, lineHeight: 1 }}>جزء عم</p>
+                <span style={{ fontSize: 14 }}>🌙</span>
+              </div>
+
               {/* Right — stats + avatar */}
-              <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, zIndex: 1 }}>
+              <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, zIndex: 1 }}>
                 {/* Stars */}
-                <div className="glass-card" style={{ padding: '6px 10px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <div className="glass-card" style={{ padding: '6px 9px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 4 }}>
                   <span style={{ color: '#F5C842', fontSize: 14 }}>⭐</span>
-                  <span style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>{stars}</span>
+                  <span style={{ color: '#fff', fontWeight: 700, fontSize: 13 }}>{stars}</span>
                 </div>
 
                 {/* XP */}
-                <div className="glass-card" style={{ padding: '6px 10px', borderRadius: 12, minWidth: 110 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4, direction: 'rtl' }}>
+                <div className="glass-card" style={{ padding: '6px 8px', borderRadius: 12, minWidth: 88 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginBottom: 4, direction: 'rtl', gap: 6 }}>
                     <span style={{ color: 'rgba(255,255,255,0.6)' }}>المستوى {level}</span>
                     <span style={{ color: '#F5C842' }}>{xp}/{xpMax}</span>
                   </div>
@@ -189,7 +214,7 @@ export default function JuzAmmaWorld({
                 {/* Avatar */}
                 <motion.div
                   style={{
-                    width: 40, height: 40, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
+                    width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
                     border: `2px solid ${isNoor ? 'rgba(14,165,233,0.6)' : 'rgba(124,58,237,0.6)'}`,
                   }}
                   animate={{ boxShadow: [
@@ -199,7 +224,7 @@ export default function JuzAmmaWorld({
                   ]}}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <Image src={isNoor ? '/noor.png' : '/lujain.png'} alt={childName} width={40} height={40} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+                  <Image src={isNoor ? '/noor.png' : '/lujain.png'} alt={childName} width={36} height={36} style={{ objectFit: 'cover' }} />
                 </motion.div>
               </div>
             </div>
@@ -207,24 +232,24 @@ export default function JuzAmmaWorld({
 
           {/* ── HERO ── */}
           <motion.div
-            style={{ textAlign: 'center', padding: '32px 0' }}
+            style={{ textAlign: 'center', padding: '24px 0' }}
             initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 0.7 }}
           >
-            <motion.div style={{ fontSize: 64, display: 'inline-block', marginBottom: 12 }}
+            <motion.div style={{ fontSize: 'clamp(2.75rem, 12vw, 4rem)', display: 'inline-block', marginBottom: 10 }}
               animate={{ y: [-6, 6, -6], rotate: [-3, 3, -3] }} transition={{ duration: 4, repeat: Infinity }}>
               🌙
             </motion.div>
             <h1 className="gold-text" style={{ fontSize: 'clamp(2rem, 6vw, 4rem)', fontWeight: 900, marginBottom: 12, direction: 'rtl' }}>
               عالم جزء عم
             </h1>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 18, direction: 'rtl' }}>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 'clamp(0.9rem, 3.5vw, 1.125rem)', direction: 'rtl' }}>
               {JUZ_AMMA.length} سورة مباركة تنتظرك يا {childName}
             </p>
 
             {/* Progress card */}
             <motion.div
               className="glass-card"
-              style={{ maxWidth: 384, margin: '20px auto 0', borderRadius: 16, padding: 16 }}
+              style={{ maxWidth: 384, width: 'min(100%, 24rem)', margin: '20px auto 0', borderRadius: 16, padding: 14 }}
               initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.6 }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, marginBottom: 8, direction: 'rtl' }}>
@@ -247,18 +272,20 @@ export default function JuzAmmaWorld({
               style={{
                 margin: '14px auto 0',
                 borderRadius: 999,
-                padding: '8px 14px',
+                padding: '8px 12px',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 8,
                 direction: 'rtl',
+                width: 'min(100%, 34rem)',
+                justifyContent: 'center',
               }}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9 }}
             >
               <span style={{ fontSize: 15 }}>💡</span>
-              <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: 700 }}>
+              <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: 700 }}>
                 اضغط "تعليمات" لتعرف كيف تستمع وتتعلّم وتبدأ التحدي
               </span>
             </motion.div>
@@ -266,7 +293,7 @@ export default function JuzAmmaWorld({
 
           {/* ── FILTER TABS ── */}
           <motion.div
-            style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 32 }}
+            style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
           >
             {([
@@ -279,15 +306,16 @@ export default function JuzAmmaWorld({
                 onClick={() => setFilter(f.key)}
                 className={filter === f.key ? '' : 'glass-card'}
                 style={{
-                  padding: '8px 16px',
+                  padding: '10px 14px',
                   borderRadius: 999,
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
                   gap: 6,
                   direction: 'rtl',
                   cursor: 'pointer',
+                  minHeight: 44,
                   border: filter === f.key ? '1px solid rgba(245,200,66,0.6)' : undefined,
                   background: filter === f.key ? 'rgba(245,200,66,0.2)' : undefined,
                   color: filter === f.key ? '#F5C842' : 'rgba(255,255,255,0.5)',
@@ -301,12 +329,7 @@ export default function JuzAmmaWorld({
 
           {/* ── SURAH GRID ── */}
           <motion.div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-              gap: 16,
-              justifyContent: 'center',
-            }}
+            className="w-full mx-auto flex flex-wrap justify-center gap-3 sm:gap-4"
             layout
           >
             <AnimatePresence>
@@ -331,6 +354,7 @@ export default function JuzAmmaWorld({
             </motion.div>
           )}
 
+          </div>
         </div>
       </div>
 
@@ -340,10 +364,10 @@ export default function JuzAmmaWorld({
         style={{
           position: 'fixed',
           right: 18,
-          bottom: 'max(18px, calc(env(safe-area-inset-bottom) + 92px))',
+          bottom: 'max(14px, calc(env(safe-area-inset-bottom) + 76px))',
           zIndex: 70,
           borderRadius: 999,
-          padding: '10px 14px',
+          padding: '10px 12px',
           display: 'flex',
           alignItems: 'center',
           gap: 8,
@@ -377,12 +401,14 @@ export default function JuzAmmaWorld({
             <motion.div
               className="glass-card"
               style={{
-                maxWidth: 860,
-                margin: '6vh auto 0',
+                width: 'min(860px, calc(100vw - 24px))',
+                margin: 'clamp(10px, 4vh, 6vh) auto 0',
                 borderRadius: 24,
-                padding: 20,
+                padding: 14,
                 border: '1px solid rgba(245,200,66,0.35)',
                 boxShadow: '0 20px 70px rgba(0,0,0,0.4)',
+                maxHeight: 'calc(100dvh - 24px)',
+                overflowY: 'auto',
               }}
               initial={{ opacity: 0, y: 24, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -392,13 +418,13 @@ export default function JuzAmmaWorld({
             >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, direction: 'rtl', marginBottom: 14 }}>
                 <div>
-                  <h2 style={{ color: '#fff', fontWeight: 900, fontSize: 22 }}>كيف أستخدم عالم جزء عم؟</h2>
+                  <h2 style={{ color: '#fff', fontWeight: 900, fontSize: 'clamp(1rem, 4.7vw, 1.375rem)' }}>كيف أستخدم عالم جزء عم؟</h2>
                   <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 14 }}>خطوات سهلة وسريعة يا بطل 🌟</p>
                 </div>
                 <button
                   onClick={() => setShowGuide(false)}
                   className="glass-card"
-                  style={{ borderRadius: 999, width: 34, height: 34, color: 'rgba(255,255,255,0.8)', fontWeight: 900 }}
+                  style={{ borderRadius: 999, width: 40, height: 40, color: 'rgba(255,255,255,0.8)', fontWeight: 900 }}
                   aria-label="إغلاق التعليمات"
                 >
                   ✕
@@ -494,7 +520,7 @@ function SurahCard({ surah, index, isHovered, onHover, onSelect }: {
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.8 }}
       transition={{ delay: index * 0.03, duration: 0.4, type: 'spring', stiffness: 200 }}
-      style={{ position: 'relative', cursor: 'pointer' }}
+      style={{ position: 'relative', cursor: 'pointer', width: 'clamp(160px, 18vw, 200px)' }}
       onHoverStart={() => onHover(surah.id)}
       onHoverEnd={() => onHover(null)}
       onClick={() => onSelect(surah)}
@@ -546,7 +572,7 @@ function SurahCard({ surah, index, isHovered, onHover, onSelect }: {
           {/* Stars */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: 2, marginBottom: 8 }}>
             {[1, 2, 3].map(s => (
-              <span key={s} style={{ fontSize: 14, color: s <= surah.stars ? '#F5C842' : 'rgba(255,255,255,0.15)' }}>★</span>
+              <span key={s} style={{ fontSize: 13, color: s <= surah.stars ? '#F5C842' : 'rgba(255,255,255,0.15)' }}>★</span>
             ))}
           </div>
 

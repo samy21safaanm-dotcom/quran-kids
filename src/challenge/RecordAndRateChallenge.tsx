@@ -64,17 +64,17 @@ export default function RecordAndRateChallenge({ ayat, onSuccess }: Props) {
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center gap-4 py-8"
+        className="flex flex-col items-center gap-3 sm:gap-4 py-6 sm:py-8 px-2"
       >
         <motion.span
           animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.2, 1] }}
           transition={{ repeat: Infinity, duration: 1.2 }}
-          className="text-7xl"
+          className="text-5xl sm:text-6xl md:text-7xl"
         >
           🎙️
         </motion.span>
-        <div className="text-2xl font-black text-purple-900">ممتاز! اكتملت التسجيلات 🎉</div>
-        <div className="text-lg text-purple-700 font-bold">
+        <div className="text-xl sm:text-2xl font-black text-purple-900 text-center">ممتاز! اكتملت التسجيلات 🎉</div>
+        <div className="text-base sm:text-lg text-purple-700 font-bold text-center">
           {goodCount} من {scores.length} بتقييم ممتاز
         </div>
         <div className="flex gap-1 mt-2">
@@ -84,7 +84,7 @@ export default function RecordAndRateChallenge({ ayat, onSuccess }: Props) {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: i * 0.1 }}
-              className={`text-3xl ${s === 'good' ? 'text-yellow-400' : 'text-gray-400'}`}
+              className={`text-2xl sm:text-3xl ${s === 'good' ? 'text-yellow-400' : 'text-gray-400'}`}
             >
               ⭐
             </motion.span>
@@ -96,7 +96,7 @@ export default function RecordAndRateChallenge({ ayat, onSuccess }: Props) {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 items-center">
+    <div className="w-full max-w-2xl mx-auto flex flex-col gap-4 sm:gap-6 items-center px-2 sm:px-0">
       {/* شريط التقدم */}
       <div className="flex gap-2">
         {ayat.map((_, i) => (
@@ -119,13 +119,13 @@ export default function RecordAndRateChallenge({ ayat, onSuccess }: Props) {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
-          className="w-full bg-gradient-to-br from-yellow-50 to-amber-100 rounded-3xl p-8 text-center border-2 border-yellow-300 shadow-xl"
+          className="w-full bg-gradient-to-br from-yellow-50 to-amber-100 rounded-3xl p-4 sm:p-6 md:p-8 text-center border-2 border-yellow-300 shadow-xl"
         >
           <div className="text-sm text-purple-500 font-bold mb-4">
             الآية {currentIdx + 1} من {ayat.length}
           </div>
           <div
-            className="text-3xl md:text-4xl font-black text-purple-900 leading-relaxed"
+            className="text-xl sm:text-2xl md:text-4xl font-black text-purple-900 leading-relaxed"
             style={{ fontFamily: 'Tajawal, Arial' }}
           >
             {ayat[currentIdx]}
@@ -141,7 +141,7 @@ export default function RecordAndRateChallenge({ ayat, onSuccess }: Props) {
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={recording ? stopRecording : startRecording}
-              className={`relative px-10 py-6 rounded-full font-black text-2xl shadow-2xl border-4 transition-all ${
+              className={`relative w-full sm:w-auto sm:min-w-[240px] px-5 sm:px-8 md:px-10 py-3 sm:py-4 md:py-6 rounded-full font-black text-lg sm:text-xl md:text-2xl shadow-2xl border-4 transition-all min-h-11 ${
                 recording
                   ? 'bg-red-500 text-white border-red-700 animate-pulse'
                   : 'bg-gradient-to-r from-purple-500 to-purple-600 text-white border-purple-700 hover:shadow-2xl'
@@ -175,7 +175,7 @@ export default function RecordAndRateChallenge({ ayat, onSuccess }: Props) {
                 }
               }}
               disabled={isPlaying}
-              className="px-8 py-4 rounded-full font-black text-xl shadow-lg bg-gradient-to-r from-green-400 to-green-500 text-white border-2 border-green-600 hover:shadow-xl transition-all disabled:opacity-60"
+              className="w-full sm:w-auto sm:min-w-[220px] px-5 sm:px-8 py-3 sm:py-4 rounded-full font-black text-base sm:text-xl shadow-lg bg-gradient-to-r from-green-400 to-green-500 text-white border-2 border-green-600 hover:shadow-xl transition-all disabled:opacity-60 min-h-11"
             >
               {isPlaying ? '▶️ جاري التشغيل...' : '▶️ استمع للتسجيل'}
             </motion.button>
@@ -191,19 +191,19 @@ export default function RecordAndRateChallenge({ ayat, onSuccess }: Props) {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-center text-purple-700 font-bold text-lg"
+                className="text-center text-purple-700 font-bold text-base sm:text-lg"
               >
                 اسمع التسجيل وقيّم نفسك
               </motion.div>
             )}
 
-            <div className="flex gap-4 mt-2 flex-wrap justify-center w-full">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-2 flex-wrap justify-center w-full">
               {/* زر صحيح */}
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => { setShowRating(true); handleRating('good'); }}
                 disabled={showRating}
-                className={`px-8 py-5 rounded-2xl font-black text-xl shadow-lg border-4 transition-all ${
+                className={`w-full sm:w-auto px-5 sm:px-8 py-3 sm:py-5 rounded-2xl font-black text-base sm:text-xl shadow-lg border-4 transition-all min-h-11 ${
                   rating === 'good'
                     ? 'bg-green-100 border-green-400 text-green-700 scale-110'
                     : showRating
@@ -219,7 +219,7 @@ export default function RecordAndRateChallenge({ ayat, onSuccess }: Props) {
                 whileTap={{ scale: 0.9 }}
                 onClick={() => { setShowRating(true); handleRating('improve'); }}
                 disabled={showRating}
-                className={`px-8 py-5 rounded-2xl font-black text-xl shadow-lg border-4 transition-all ${
+                className={`w-full sm:w-auto px-5 sm:px-8 py-3 sm:py-5 rounded-2xl font-black text-base sm:text-xl shadow-lg border-4 transition-all min-h-11 ${
                   rating === 'improve'
                     ? 'bg-yellow-100 border-yellow-400 text-yellow-700 scale-110'
                     : showRating
@@ -238,7 +238,7 @@ export default function RecordAndRateChallenge({ ayat, onSuccess }: Props) {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0 }}
-                  className={`text-center font-black text-lg ${
+                  className={`text-center font-black text-base sm:text-lg ${
                     rating === 'good' ? 'text-green-600' : 'text-yellow-600'
                   }`}
                 >

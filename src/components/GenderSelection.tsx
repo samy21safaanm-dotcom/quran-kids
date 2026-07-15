@@ -21,7 +21,7 @@ export default function GenderSelection({ onSelect }: Props) {
 
   return (
     <motion.div
-      className="relative min-h-screen flex flex-col items-center justify-center px-4 py-8 z-10"
+      className="relative min-h-screen flex flex-col items-center justify-center px-3 sm:px-4 md:px-6 py-6 sm:py-8 z-10"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
@@ -31,16 +31,16 @@ export default function GenderSelection({ onSelect }: Props) {
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-yellow-400 to-transparent opacity-60" />
 
       {/* Decorations */}
-      <motion.div className="absolute top-8 left-8 text-5xl"
+      <motion.div className="absolute top-3 left-3 sm:top-5 sm:left-5 md:top-8 md:left-8 text-3xl sm:text-4xl md:text-5xl"
         animate={{ rotate: [0, 10, 0], scale: [1, 1.1, 1] }}
         transition={{ duration: 4, repeat: Infinity }}>🌙</motion.div>
-      <motion.div className="absolute top-8 right-8 text-4xl"
+      <motion.div className="absolute top-3 right-3 sm:top-5 sm:right-5 md:top-8 md:right-8 text-2xl sm:text-3xl md:text-4xl"
         animate={{ rotate: [0, -10, 0], scale: [1, 1.1, 1] }}
         transition={{ duration: 5, repeat: Infinity, delay: 1 }}>⭐</motion.div>
 
       {/* Header */}
       <motion.div
-        className="text-center mb-10 z-10"
+        className="text-center mb-7 sm:mb-9 md:mb-10 z-10 w-full"
         initial={{ opacity: 0, y: -40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
@@ -51,13 +51,13 @@ export default function GenderSelection({ onSelect }: Props) {
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 200, delay: 0.1 }}
         >
-          <span className="text-4xl animate-glow-pulse">📖</span>
-          <h1 className="text-3xl md:text-4xl font-black gold-text">نبأ</h1>
-          <span className="text-4xl animate-glow-pulse">✨</span>
+          <span className="text-3xl sm:text-4xl animate-glow-pulse">📖</span>
+          <h1 className="text-[clamp(1.75rem,6vw,2.25rem)] font-black gold-text">نبأ</h1>
+          <span className="text-3xl sm:text-4xl animate-glow-pulse">✨</span>
         </motion.div>
 
         <motion.h2
-          className="text-3xl md:text-5xl font-black text-white mb-4 leading-tight"
+          className="text-[clamp(1.5rem,6.2vw,3rem)] font-black text-white mb-3 sm:mb-4 leading-tight px-1"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -68,7 +68,7 @@ export default function GenderSelection({ onSelect }: Props) {
         </motion.h2>
 
         <motion.p
-          className="text-lg md:text-xl text-blue-200 font-medium max-w-lg mx-auto leading-relaxed"
+          className="text-[clamp(0.95rem,3.8vw,1.25rem)] text-blue-200 font-medium max-w-[min(92vw,34rem)] mx-auto leading-relaxed"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
@@ -77,29 +77,29 @@ export default function GenderSelection({ onSelect }: Props) {
         </motion.p>
 
         <motion.div
-          className="flex items-center justify-center gap-3 mt-4"
+          className="flex items-center justify-center gap-2 sm:gap-3 mt-3 sm:mt-4"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ delay: 0.8, duration: 0.6 }}
         >
-          <div className="h-px w-20 bg-gradient-to-r from-transparent to-yellow-400" />
-          <span className="text-yellow-400 text-xl">❋</span>
-          <div className="h-px w-20 bg-gradient-to-l from-transparent to-yellow-400" />
+          <div className="h-px w-12 sm:w-16 md:w-20 bg-gradient-to-r from-transparent to-yellow-400" />
+          <span className="text-yellow-400 text-lg sm:text-xl">❋</span>
+          <div className="h-px w-12 sm:w-16 md:w-20 bg-gradient-to-l from-transparent to-yellow-400" />
         </motion.div>
       </motion.div>
 
       {/* Character Cards */}
-      <div className="flex flex-col md:flex-row gap-8 md:gap-12 z-10 w-full max-w-4xl justify-center">
+      <div className="flex flex-col md:flex-row gap-6 sm:gap-8 md:gap-12 z-10 w-full max-w-4xl justify-center">
 
         {/* Noor Card */}
         <motion.div
-          className="flex-1 max-w-sm mx-auto"
+          className="w-full md:flex-1 max-w-[min(100%,24rem)] md:max-w-sm mx-auto"
           initial={{ opacity: 0, x: 60 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, delay: 0.5 }}
         >
           <motion.div
-            className={`card-noor glass-card rounded-3xl p-6 cursor-pointer relative overflow-hidden transition-all duration-300 ${selectedCard === 'noor' ? 'scale-95 opacity-80' : ''}`}
+            className={`card-noor glass-card rounded-3xl p-4 sm:p-6 cursor-pointer relative overflow-hidden transition-all duration-300 ${selectedCard === 'noor' ? 'scale-95 opacity-80' : ''}`}
             whileHover={{ scale: 1.04, y: -8 }}
             whileTap={{ scale: 0.97 }}
             onHoverStart={() => setHoveredCard('noor')}
@@ -116,12 +116,12 @@ export default function GenderSelection({ onSelect }: Props) {
               )}
             </AnimatePresence>
 
-            <div className="absolute top-4 left-4 bg-sky-500/20 border border-sky-400/40 rounded-full px-3 py-1">
-              <span className="text-sky-300 text-sm font-bold">الولد</span>
+            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-sky-500/20 border border-sky-400/40 rounded-full px-2.5 sm:px-3 py-1">
+              <span className="text-sky-300 text-xs sm:text-sm font-bold">الولد</span>
             </div>
 
             <motion.div
-              className="flex justify-center mb-4"
+              className="flex justify-center mb-3 sm:mb-4 scale-90 sm:scale-100 origin-center"
               animate={hoveredCard === 'noor' ? { y: [-5, 5, -5] } : { y: 0 }}
               transition={{ duration: 2, repeat: hoveredCard === 'noor' ? Infinity : 0 }}
             >
@@ -129,7 +129,7 @@ export default function GenderSelection({ onSelect }: Props) {
             </motion.div>
 
             <div className="text-center mb-2">
-              <h3 className="text-3xl font-black text-white mb-1">صالح</h3>
+              <h3 className="text-[clamp(1.5rem,5.5vw,1.875rem)] font-black text-white mb-1">صالح</h3>
               <p className="text-sky-300 text-sm font-medium">الفتى المؤمن الشجاع</p>
             </div>
 
@@ -142,7 +142,7 @@ export default function GenderSelection({ onSelect }: Props) {
             </div>
 
             <motion.button
-              className="btn-gold w-full py-4 text-xl font-black rounded-2xl relative overflow-hidden"
+              className="btn-gold w-full min-h-11 py-3.5 sm:py-4 text-lg sm:text-xl font-black rounded-2xl relative overflow-hidden"
               whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
             >
               <span className="relative z-10">ابدأ مع صالح 🌟</span>
@@ -166,13 +166,13 @@ export default function GenderSelection({ onSelect }: Props) {
 
         {/* Lujain Card */}
         <motion.div
-          className="flex-1 max-w-sm mx-auto"
+          className="w-full md:flex-1 max-w-[min(100%,24rem)] md:max-w-sm mx-auto"
           initial={{ opacity: 0, x: -60 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, delay: 0.5 }}
         >
           <motion.div
-            className={`card-lujain glass-card rounded-3xl p-6 cursor-pointer relative overflow-hidden transition-all duration-300 ${selectedCard === 'lujain' ? 'scale-95 opacity-80' : ''}`}
+            className={`card-lujain glass-card rounded-3xl p-4 sm:p-6 cursor-pointer relative overflow-hidden transition-all duration-300 ${selectedCard === 'lujain' ? 'scale-95 opacity-80' : ''}`}
             whileHover={{ scale: 1.04, y: -8 }}
             whileTap={{ scale: 0.97 }}
             onHoverStart={() => setHoveredCard('lujain')}
@@ -189,12 +189,12 @@ export default function GenderSelection({ onSelect }: Props) {
               )}
             </AnimatePresence>
 
-            <div className="absolute top-4 left-4 bg-purple-500/20 border border-purple-400/40 rounded-full px-3 py-1">
-              <span className="text-purple-300 text-sm font-bold">البنت</span>
+            <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-purple-500/20 border border-purple-400/40 rounded-full px-2.5 sm:px-3 py-1">
+              <span className="text-purple-300 text-xs sm:text-sm font-bold">البنت</span>
             </div>
 
             <motion.div
-              className="flex justify-center mb-4"
+              className="flex justify-center mb-3 sm:mb-4 scale-90 sm:scale-100 origin-center"
               animate={hoveredCard === 'lujain' ? { y: [-5, 5, -5] } : { y: 0 }}
               transition={{ duration: 2, repeat: hoveredCard === 'lujain' ? Infinity : 0 }}
             >
@@ -202,7 +202,7 @@ export default function GenderSelection({ onSelect }: Props) {
             </motion.div>
 
             <div className="text-center mb-2">
-              <h3 className="text-3xl font-black text-white mb-1">هدى</h3>
+              <h3 className="text-[clamp(1.5rem,5.5vw,1.875rem)] font-black text-white mb-1">هدى</h3>
               <p className="text-purple-300 text-sm font-medium">الفتاة المؤمنة الذكية</p>
             </div>
 
@@ -215,7 +215,7 @@ export default function GenderSelection({ onSelect }: Props) {
             </div>
 
             <motion.button
-              className="btn-purple w-full py-4 text-xl font-black rounded-2xl relative overflow-hidden"
+              className="btn-purple w-full min-h-11 py-3.5 sm:py-4 text-lg sm:text-xl font-black rounded-2xl relative overflow-hidden"
               whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
             >
               <span className="relative z-10">ابدأ مع هدى 🌸</span>

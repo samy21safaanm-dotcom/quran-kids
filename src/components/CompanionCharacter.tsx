@@ -2,7 +2,7 @@ import React from 'react';
 
 // شخصية كرتونية (ولد أو بنت) مع تعبير لطيف
 const CompanionCharacter: React.FC<{ gender: 'boy' | 'girl'; mood?: 'happy' | 'celebrate' }> = ({ gender, mood = 'happy' }) => {
-  const imgSrc = gender === 'boy' ? '/images/cartoon-boy.png' : '/images/cartoon-girl.png';
+  const imgSrc = gender === 'boy' ? '/noor.png' : '/lujain.png';
   return (
     <div className="relative flex flex-col items-center select-none">
       <img

@@ -59,16 +59,16 @@ export default function SimpleHifzChallenge({ ayat, onSuccess }: Props) {
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center gap-4 py-8"
+        className="flex flex-col items-center gap-3 sm:gap-4 py-6 sm:py-8 px-2"
       >
         <span className="text-7xl">🏆</span>
-        <div className="text-2xl font-black text-green-600">أحسنت! أتممت تقييم الحفظ</div>
-        <div className="text-lg text-purple-700 font-bold">
+        <div className="text-xl sm:text-2xl font-black text-green-600 text-center">أحسنت! أتممت تقييم الحفظ</div>
+        <div className="text-base sm:text-lg text-purple-700 font-bold text-center">
           حصلت على {score} من {ayat.length}
         </div>
         <div className="flex gap-1 mt-2">
           {ayat.map((_, i) => (
-            <span key={i} className={`text-3xl transition-all ${i < score ? 'text-yellow-400' : 'text-gray-300'}`}>
+            <span key={i} className={`text-2xl sm:text-3xl transition-all ${i < score ? 'text-yellow-400' : 'text-gray-300'}`}>
               ⭐
             </span>
           ))}
@@ -79,7 +79,7 @@ export default function SimpleHifzChallenge({ ayat, onSuccess }: Props) {
   }
 
   return (
-    <div className="w-full max-w-lg mx-auto flex flex-col gap-6 items-center">
+    <div className="w-full max-w-lg mx-auto flex flex-col gap-4 sm:gap-6 items-center px-2 sm:px-0">
       {/* شريط التقدم */}
       <div className="flex gap-2 mt-2">
         {ayat.map((_, i) => (
@@ -102,7 +102,7 @@ export default function SimpleHifzChallenge({ ayat, onSuccess }: Props) {
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -40 }}
-          className="w-full bg-gradient-to-br from-amber-50 to-yellow-100 rounded-3xl p-8 shadow-xl border-2 border-yellow-300 text-center"
+          className="w-full bg-gradient-to-br from-amber-50 to-yellow-100 rounded-3xl p-4 sm:p-6 md:p-8 shadow-xl border-2 border-yellow-300 text-center"
         >
           <div className="text-sm text-purple-500 font-bold mb-4">
             الآية {currentIdx + 1} من {ayat.length}
@@ -112,12 +112,12 @@ export default function SimpleHifzChallenge({ ayat, onSuccess }: Props) {
             style={{ fontFamily: 'Tajawal, Arial' }}
           >
             {before && (
-              <span className="text-2xl md:text-3xl font-black text-purple-900">
+              <span className="text-xl sm:text-2xl md:text-3xl font-black text-purple-900">
                 {before}
               </span>
             )}
             <span
-              className={`inline-block min-w-[90px] text-2xl md:text-3xl font-black text-center px-3 py-1 rounded-xl border-b-4 transition-all ${
+              className={`inline-block min-w-[72px] sm:min-w-[90px] text-xl sm:text-2xl md:text-3xl font-black text-center px-3 py-1 rounded-xl border-b-4 transition-all ${
                 showResult && selected === correctWord
                   ? 'bg-green-100 border-green-400 text-green-700'
                   : showResult
@@ -132,7 +132,7 @@ export default function SimpleHifzChallenge({ ayat, onSuccess }: Props) {
       </AnimatePresence>
 
       {/* خيارات الإجابة */}
-      <div className="flex gap-4 flex-wrap justify-center w-full">
+      <div className="flex gap-3 sm:gap-4 flex-wrap justify-center w-full">
         {options.map((opt) => {
           const isCorrect = opt === correctWord;
           const isSelected = opt === selected;
@@ -142,7 +142,7 @@ export default function SimpleHifzChallenge({ ayat, onSuccess }: Props) {
               whileTap={{ scale: 0.93 }}
               onClick={() => handleSelect(opt)}
               disabled={showResult}
-              className={`px-8 py-5 rounded-2xl font-black text-2xl shadow-lg border-2 transition-all min-w-[120px]
+              className={`w-full sm:w-auto px-5 sm:px-7 py-3 sm:py-4 rounded-2xl font-black text-lg sm:text-2xl shadow-lg border-2 transition-all min-w-[min(100%,9rem)] min-h-11
                 ${!showResult ? 'bg-white hover:bg-yellow-50 border-yellow-200 text-purple-900 hover:border-yellow-400' : ''}
                 ${showResult && isCorrect ? 'bg-green-100 border-green-400 text-green-700 scale-105' : ''}
                 ${showResult && isSelected && !isCorrect ? 'bg-red-100 border-red-400 text-red-600 opacity-80' : ''}
@@ -158,7 +158,7 @@ export default function SimpleHifzChallenge({ ayat, onSuccess }: Props) {
         })}
       </div>
 
-      <div className="text-purple-500 font-bold text-lg">
+      <div className="text-purple-500 font-bold text-base sm:text-lg">
         {Array.from({ length: ayat.length }).map((_, i) => (
           <span key={i} className={i < score ? 'text-yellow-400' : 'text-gray-300'}>⭐</span>
         ))}

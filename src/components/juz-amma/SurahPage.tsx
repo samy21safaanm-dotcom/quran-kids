@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback, memo } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Surah, Ayah } from '@/lib/juzAmmaData';
 import { RECITERS } from '@/lib/juzAmmaData';
@@ -111,13 +111,218 @@ function useAudioPlayer(src: string) {
     currentTime: ref.current?.currentTime ?? 0 };
 }
 
-function Particle({ color }: { color: string }) {
+function useTafsirNarrator() {
+  const [activeAyah, setActiveAyah] = useState<number | null>(null);
+  const [loadingAyah, setLoadingAyah] = useState<number | null>(null);
+  const [available, setAvailable] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const cacheRef = useRef<Map<number, string>>(new Map());
+  const audioContextRef = useRef<AudioContext | null>(null);
+
+  const closeToneContext = useCallback(() => {
+    const ctx = audioContextRef.current;
+    audioContextRef.current = null;
+    if (!ctx) return;
+    void ctx.close().catch(() => {});
+  }, []);
+
+  const applyBoyToneFilter = useCallback(async (audio: HTMLAudioElement) => {
+    if (typeof window === 'undefined') return;
+    const Ctx = window.AudioContext || ((window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext);
+    if (!Ctx) return;
+
+    closeToneContext();
+
+    try {
+      const ctx = new Ctx();
+      const source = ctx.createMediaElementSource(audio);
+
+      // Boost low frequencies and trim highs to shift the timbre toward young-boy voice.
+      const lowShelf = ctx.createBiquadFilter();
+      lowShelf.type = 'lowshelf';
+      lowShelf.frequency.value = 230;
+      lowShelf.gain.value = 6;
+
+      const peaking = ctx.createBiquadFilter();
+      peaking.type = 'peaking';
+      peaking.frequency.value = 1200;
+      peaking.Q.value = 0.9;
+      peaking.gain.value = -2.5;
+
+      const highShelf = ctx.createBiquadFilter();
+      highShelf.type = 'highshelf';
+      highShelf.frequency.value = 3200;
+      highShelf.gain.value = -6;
+
+      source.connect(lowShelf);
+      lowShelf.connect(peaking);
+      peaking.connect(highShelf);
+      highShelf.connect(ctx.destination);
+
+      if (ctx.state === 'suspended') {
+        await ctx.resume();
+      }
+
+      audioContextRef.current = ctx;
+    } catch {
+      closeToneContext();
+    }
+  }, [closeToneContext]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      setAvailable(false);
+      return;
+    }
+    setAvailable(true);
+
+    return () => {
+      const active = audioRef.current;
+      if (active) {
+        active.pause();
+        active.currentTime = 0;
+      }
+      closeToneContext();
+      for (const url of cacheRef.current.values()) {
+        URL.revokeObjectURL(url);
+      }
+      cacheRef.current.clear();
+    };
+  }, [closeToneContext]);
+
+  const stop = useCallback(() => {
+    const active = audioRef.current;
+    if (active) {
+      active.pause();
+      active.currentTime = 0;
+    }
+    closeToneContext();
+    setActiveAyah(null);
+    setLoadingAyah(null);
+  }, [closeToneContext]);
+
+  const speak = useCallback(async (ayahNumber: number, tafsir: string) => {
+    if (!tafsir.trim()) return;
+
+    if (activeAyah === ayahNumber) {
+      stop();
+      return;
+    }
+
+    setError(null);
+    stop();
+    setLoadingAyah(ayahNumber);
+
+    try {
+      let blobUrl = cacheRef.current.get(ayahNumber);
+      if (!blobUrl) {
+        const res = await fetch('/api/tafsir-tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: tafsir }),
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || 'تعذّر توليد صوت التفسير.');
+        }
+
+        const audioBlob = await res.blob();
+        blobUrl = URL.createObjectURL(audioBlob);
+        cacheRef.current.set(ayahNumber, blobUrl);
+      }
+
+      const audio = new Audio(blobUrl);
+      audio.preload = 'auto';
+      audio.playbackRate = 0.82;
+      (audio as HTMLAudioElement & {
+        preservesPitch?: boolean;
+        mozPreservesPitch?: boolean;
+        webkitPreservesPitch?: boolean;
+      }).preservesPitch = false;
+      (audio as HTMLAudioElement & { mozPreservesPitch?: boolean }).mozPreservesPitch = false;
+      (audio as HTMLAudioElement & { webkitPreservesPitch?: boolean }).webkitPreservesPitch = false;
+      audio.onended = () => {
+        setActiveAyah(null);
+        closeToneContext();
+      };
+      audio.onerror = () => {
+        setError('تعذّر تشغيل الصوت المولّد.');
+        setActiveAyah(null);
+        closeToneContext();
+      };
+
+      audioRef.current = audio;
+      setActiveAyah(ayahNumber);
+      await applyBoyToneFilter(audio);
+      await audio.play();
+    } catch (err) {
+      setActiveAyah(null);
+      setAvailable(false);
+      closeToneContext();
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('تعذّر تشغيل صوت التفسير.');
+      }
+    } finally {
+      setLoadingAyah(null);
+    }
+  }, [activeAyah, applyBoyToneFilter, closeToneContext, stop]);
+
+  return { available, activeAyah, loadingAyah, error, speak, stop };
+}
+
+function Particle({
+  color,
+  left,
+  bottom,
+  size,
+  lift,
+  duration,
+  delay,
+}: {
+  color: string;
+  left: number;
+  bottom: number;
+  size: number;
+  lift: number;
+  duration: number;
+  delay: number;
+}) {
   return (
     <motion.div className="absolute rounded-full pointer-events-none"
-      style={{ left: `${Math.random() * 100}%`, bottom: -10,
-        width: Math.random() * 4 + 2, height: Math.random() * 4 + 2, background: color }}
-      animate={{ y: [0, -(Math.random() * 300 + 200)], opacity: [0, 0.8, 0], scale: [0, 1, 0] }}
-      transition={{ duration: Math.random() * 6 + 4, repeat: Infinity, delay: Math.random() * 5 }} />
+      style={{ left: `${left}%`, bottom,
+        width: size, height: size, background: color }}
+      animate={{ y: [0, -lift], opacity: [0, 0.8, 0], scale: [0, 1, 0] }}
+      transition={{ duration, repeat: Infinity, delay }} />
+  );
+}
+
+function StoryJumpButton({ accent, onPlayStory }: { accent: string; onPlayStory?: () => void }) {
+  const scrollToStory = () => {
+    if (onPlayStory) {
+      onPlayStory();
+    }
+
+    const storyEl = document.querySelector('[data-story-panel="true"]');
+    if (storyEl) {
+      storyEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  return (
+    <motion.button
+      type="button"
+      onClick={scrollToStory}
+      className="lg:hidden w-full mb-4 rounded-2xl px-4 py-3 font-black text-sm sm:text-base text-slate-950 min-h-11 shadow-2xl"
+      style={{ background: `linear-gradient(135deg, ${accent}, #F5C842)`, boxShadow: `0 18px 40px ${accent}40` }}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+    >
+      ▶ شغّل القصة السينمائية
+    </motion.button>
   );
 }
 
@@ -133,13 +338,33 @@ function getStoryVideoSrc(surah: Surah) {
   return fileName ? `/videos/${fileName}` : '';
 }
 
-const StoryPanel = memo(function StoryPanel({ surah, accent }: { surah: Surah; accent: string }) {
+const StoryPanel = memo(function StoryPanel({ surah, accent, onPlayReady, onPlayingChange }: { surah: Surah; accent: string; onPlayReady?: (play: () => void) => void; onPlayingChange?: (playing: boolean) => void }) {
   const [phase, setPhase] = useState<StoryPhase>('idle');
   const [videoError, setVideoError] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const [playing, setPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const noStorySparkles = useMemo(
+    () => Array.from({ length: 12 }, () => ({
+      size: Math.random() * 5 + 2,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      duration: Math.random() * 5 + 4,
+      delay: Math.random() * 5,
+    })),
+    [],
+  );
+  const idleSparkles = useMemo(
+    () => Array.from({ length: 10 }, () => ({
+      size: Math.random() * 5 + 2,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      duration: Math.random() * 4 + 3,
+      delay: Math.random() * 4,
+    })),
+    [],
+  );
 
   const handlePlay = async () => {
     const video = videoRef.current;
@@ -191,17 +416,28 @@ const StoryPanel = memo(function StoryPanel({ surah, accent }: { surah: Surah; a
     }
   };
 
+  useEffect(() => {
+    if (!onPlayReady) return;
+    onPlayReady(() => {
+      void handlePlay();
+    });
+  }, [handlePlay, onPlayReady]);
+
+  useEffect(() => {
+    onPlayingChange?.(phase === 'playing');
+  }, [onPlayingChange, phase]);
+
   // No video yet
   if (!surah.story) {
     return (
       <div className="relative w-full h-full overflow-hidden"
         style={{ background: `linear-gradient(135deg, ${accent}12, rgba(124,58,237,0.15), rgba(2,8,23,0.9))` }}>
-        {Array.from({ length: 12 }).map((_, i) => (
+        {noStorySparkles.map((sparkle, i) => (
           <motion.div key={i} className="absolute rounded-full pointer-events-none"
-            style={{ width: Math.random() * 5 + 2, height: Math.random() * 5 + 2,
-              left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, background: accent }}
+            style={{ width: sparkle.size, height: sparkle.size,
+              left: `${sparkle.left}%`, top: `${sparkle.top}%`, background: accent }}
             animate={{ opacity: [0, 0.4, 0], scale: [0, 1, 0], y: [0, -60, 0] }}
-            transition={{ duration: Math.random() * 5 + 4, repeat: Infinity, delay: Math.random() * 5 }} />
+            transition={{ duration: sparkle.duration, repeat: Infinity, delay: sparkle.delay }} />
         ))}
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 text-center px-6">
           <motion.div className="text-8xl"
@@ -250,16 +486,17 @@ const StoryPanel = memo(function StoryPanel({ surah, accent }: { surah: Surah; a
         onCanPlay={handleCanPlay} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
       {/* Controls */}
       {phase === 'playing' && !videoError && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center w-full max-w-xl">
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center w-[calc(100%-0.75rem)] sm:w-full max-w-xl px-1.5 sm:px-4">
           <input type="range" min="0" max="100" value={progress} onChange={handleSeek}
             className="w-full accent-yellow-400" />
-          <div className="flex items-center gap-4 mt-2">
+          <div className="flex items-center justify-center gap-2 mt-2 w-full rounded-2xl bg-slate-900/65 border border-white/20 backdrop-blur-md px-2 py-2 sm:w-auto sm:rounded-none sm:bg-transparent sm:border-0 sm:backdrop-blur-0 sm:px-0 sm:py-0">
             <button onClick={playing ? handlePause : handlePlay}
-              className="bg-yellow-400 text-purple-900 rounded-full px-5 py-2 font-black text-lg shadow">
-              {playing ? '⏸ إيقاف مؤقت' : '▶ تشغيل'}
+              className="bg-yellow-400 text-purple-900 rounded-full px-3 sm:px-5 py-1.5 sm:py-2 font-black text-xs sm:text-lg shadow min-h-9 sm:min-h-11 flex-1 sm:flex-none">
+              <span className="sm:hidden">{playing ? '⏸ إيقاف' : '▶ تشغيل'}</span>
+              <span className="hidden sm:inline">{playing ? '⏸ إيقاف مؤقت' : '▶ تشغيل'}</span>
             </button>
             <button onClick={handleReplay}
-              className="bg-white/80 text-purple-900 rounded-full px-4 py-2 font-bold text-base border border-yellow-400 ml-2">
+              className="bg-white/80 text-purple-900 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 font-bold text-xs sm:text-base border border-yellow-400 min-h-9 sm:min-h-11 flex-1 sm:flex-none">
               ↺ إعادة
             </button>
           </div>
@@ -269,7 +506,7 @@ const StoryPanel = memo(function StoryPanel({ surah, accent }: { surah: Surah; a
       {/* Stop button while playing */}
       <AnimatePresence>
         {phase === 'playing' && !videoError && (
-          <motion.button className="absolute top-4 left-4 z-20 glass-card px-3 py-1.5 rounded-full text-white/60 hover:text-white text-xs font-bold"
+          <motion.button className="absolute top-3 sm:top-4 left-3 sm:left-4 z-20 glass-card px-3 py-2 rounded-full text-white/60 hover:text-white text-xs font-bold min-h-11"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={handleReplay} whileHover={{ scale: 1.05 }}>
             ✕ إيقاف
@@ -284,20 +521,20 @@ const StoryPanel = memo(function StoryPanel({ surah, accent }: { surah: Surah; a
             style={{ background: `linear-gradient(135deg, ${accent}18, rgba(124,58,237,0.25), rgba(2,8,23,0.85))` }}
             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.4 }}>
-            {Array.from({ length: 10 }).map((_, i) => (
+            {idleSparkles.map((sparkle, i) => (
               <motion.div key={i} className="absolute rounded-full pointer-events-none"
-                style={{ width: Math.random() * 5 + 2, height: Math.random() * 5 + 2,
-                  left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, background: accent }}
+                style={{ width: sparkle.size, height: sparkle.size,
+                  left: `${sparkle.left}%`, top: `${sparkle.top}%`, background: accent }}
                 animate={{ opacity: [0, 0.5, 0], scale: [0, 1, 0], y: [0, -50, 0] }}
-                transition={{ duration: Math.random() * 4 + 3, repeat: Infinity, delay: Math.random() * 4 }} />
+                transition={{ duration: sparkle.duration, repeat: Infinity, delay: sparkle.delay }} />
             ))}
             <motion.div className="text-8xl relative z-10"
               animate={{ y: [-10, 10, -10], rotate: [-4, 4, -4] }}
               transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}>
               {surah.icon}
             </motion.div>
-            <div className="relative z-10 px-6">
-              <h3 className="text-white font-black text-2xl mb-2">🎬 قصة سورة {surah.name}</h3>
+            <div className="relative z-10 px-5 sm:px-6">
+              <h3 className="text-white font-black text-xl sm:text-2xl mb-2">🎬 قصة سورة {surah.name}</h3>
               <p className="text-white/50 text-sm">تجربة سينمائية مذهلة للأطفال</p>
             </div>
               <p className="text-white/30 text-sm relative z-10 px-6" style={{ fontFamily: 'Amiri, serif' }}>
@@ -307,12 +544,13 @@ const StoryPanel = memo(function StoryPanel({ surah, accent }: { surah: Surah; a
                 {surah.id === 113 && '﴿ قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ﴾'}
               </p>
             <motion.button onClick={handlePlay}
-              className="relative z-10 flex items-center gap-3 px-8 py-4 rounded-2xl font-black text-lg text-black"
+              data-story-play="true"
+              className="relative z-10 flex items-center gap-2 sm:gap-3 px-5 sm:px-8 py-3 sm:py-4 rounded-2xl font-black text-sm sm:text-lg text-black min-h-11"
               style={{ background: `linear-gradient(135deg, ${accent}, #F5C842)` }}
               whileHover={{ scale: 1.08, y: -4 }} whileTap={{ scale: 0.95 }}
               animate={{ boxShadow: [`0 0 20px ${accent}50`, `0 0 50px ${accent}80`, `0 0 20px ${accent}50`] }}
               transition={{ duration: 2, repeat: Infinity }}>
-              <span className="text-2xl">▶</span>
+              <span className="text-lg sm:text-2xl">▶</span>
               <span>القصة السينمائية</span>
             </motion.button>
           </motion.div>
@@ -368,15 +606,16 @@ const StoryPanel = memo(function StoryPanel({ surah, accent }: { surah: Surah; a
               ))}
             </motion.div>
             <motion.div className="flex gap-3"
+              style={{ flexWrap: 'wrap', justifyContent: 'center' }}
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.1 }}>
-              <motion.button className="px-7 py-3 rounded-2xl font-black text-base text-black"
+              <motion.button className="px-6 sm:px-7 py-3 rounded-2xl font-black text-sm sm:text-base text-black min-h-11"
                 style={{ background: `linear-gradient(135deg, ${accent}, #F5C842)` }}
                 whileHover={{ scale: 1.06, y: -2 }} whileTap={{ scale: 0.95 }}
                 onClick={() => window.location.href = getChallengeLink(surah.id)}>
                 ابدأ التحدي 🚀
               </motion.button>
               <motion.button onClick={handleReplay}
-                className="px-5 py-3 rounded-2xl font-bold text-sm text-white/60 hover:text-white glass-card"
+                className="px-5 py-3 rounded-2xl font-bold text-xs sm:text-sm text-white/60 hover:text-white glass-card min-h-11"
                 whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.95 }}>
                 ↺ إعادة
               </motion.button>
@@ -395,16 +634,38 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
   const [showRecMenu, setShowRecMenu] = useState(false);
   const [showTour,    setShowTour]    = useState(false);
   const [tourStep,    setTourStep]    = useState(0);
+  const [isStoryPlaying, setIsStoryPlaying] = useState(false);
 
   const audioCardRef = useRef<HTMLDivElement | null>(null);
   const reciterRef = useRef<HTMLDivElement | null>(null);
   const storyRef = useRef<HTMLDivElement | null>(null);
   const ayatRef = useRef<HTMLDivElement | null>(null);
   const challengeRef = useRef<HTMLDivElement | null>(null);
+  const playStoryRef = useRef<(() => void) | null>(null);
+  const backgroundParticles = useMemo(
+    () => Array.from({ length: 20 }, () => ({
+      left: Math.random() * 100,
+      bottom: -10,
+      size: Math.random() * 4 + 2,
+      lift: Math.random() * 300 + 200,
+      duration: Math.random() * 6 + 4,
+      delay: Math.random() * 5,
+    })),
+    [],
+  );
+  const waveformBars = useMemo(
+    () => Array.from({ length: 40 }, (_, i) => ({
+      peak: Math.random() * 28 + 4,
+      duration: 0.35 + Math.random() * 0.4,
+      delay: i * 0.025,
+    })),
+    [],
+  );
 
   const accent  = surah.color;
   const reciter = RECITERS.find(r => r.id === reciterId) ?? RECITERS[0];
   const player  = useAudioPlayer(surahAudioUrl(RECITER_SERVERS[reciterId], surah.id));
+  const tafsirNarrator = useTafsirNarrator();
 
   const targetByStep: Record<TourTarget, React.RefObject<HTMLDivElement | null>> = {
     audio: audioCardRef,
@@ -453,9 +714,15 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
     setTourStep(prev => Math.max(prev - 1, 0));
   }, []);
 
+  useEffect(() => {
+    if (activeAyah === null) {
+      tafsirNarrator.stop();
+    }
+  }, [activeAyah, tafsirNarrator]);
+
   return (
-    <motion.div className="fixed inset-0 z-50 overflow-hidden"
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }}>
+    <motion.div className="fixed inset-0 z-[90] overflow-hidden"
+      initial={false} animate={{ opacity: 1 }} exit={{ opacity: 1 }} transition={{ duration: 0 }}>
 
       {/* Background */}
       <div className="absolute inset-0" style={{
@@ -464,7 +731,18 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
                      linear-gradient(180deg, #0a0520 0%, #0d1b3e 50%, #020817 100%)`,
       }} />
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 20 }).map((_, i) => <Particle key={i} color={accent} />)}
+        {backgroundParticles.map((particle, i) => (
+          <Particle
+            key={i}
+            color={accent}
+            left={particle.left}
+            bottom={particle.bottom}
+            size={particle.size}
+            lift={particle.lift}
+            duration={particle.duration}
+            delay={particle.delay}
+          />
+        ))}
         <motion.div className="absolute rounded-full blur-3xl"
           style={{ width: '40vw', height: '40vw', top: '5%', right: '5%',
             background: `radial-gradient(ellipse, ${surah.glow.replace('0.5','0.15')} 0%, transparent 70%)` }}
@@ -473,23 +751,23 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
       <div className="absolute inset-0 islamic-pattern opacity-5 pointer-events-none" />
 
       {/* Layout */}
-      <div className="relative z-10 h-full flex flex-col">
+      <div className="relative z-10 h-full flex flex-col min-w-0">
 
         {/* Header */}
-        <motion.div className="flex-shrink-0 px-6 pt-4 pb-3"
+        <motion.div className="flex-shrink-0 px-3 sm:px-4 md:px-6 pt-3 sm:pt-4 pb-2.5 sm:pb-3"
           style={{ background: 'linear-gradient(to bottom, rgba(10,5,32,0.97) 80%, transparent)' }}
           initial={{ y: -30, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
-          <div className="flex items-center justify-between max-w-screen-xl mx-auto" dir="ltr">
+          <div className="flex items-center justify-between gap-2 sm:gap-3 max-w-screen-xl mx-auto min-w-0" dir="ltr">
             <motion.button onClick={onBack}
-              className="flex items-center gap-2 glass-card px-4 py-2 rounded-full text-white/70 hover:text-white transition-colors"
+              className="flex items-center gap-1.5 sm:gap-2 glass-card px-3 sm:px-4 py-2 rounded-full text-white/70 hover:text-white transition-colors text-xs sm:text-sm min-h-11"
               whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <span>←</span><span className="text-sm font-medium">جزء عم</span>
+              <span>←</span><span className="font-medium whitespace-nowrap">جزء عم</span>
             </motion.button>
-            <div className="text-center" dir="rtl">
-              <h1 className="text-2xl font-black text-white">سورة {surah.name}</h1>
-              <p className="text-xs" style={{ color: accent }}>{surah.ayat} آيات • {surah.type} • {surah.nameEn}</p>
+            <div className="text-center min-w-0 flex-1 px-1" dir="rtl">
+              <h1 className="text-[clamp(1rem,4.2vw,1.5rem)] font-black text-white truncate">سورة {surah.name}</h1>
+              <p className="text-[10px] sm:text-xs truncate" style={{ color: accent }}>{surah.ayat} آيات • {surah.type} • {surah.nameEn}</p>
             </div>
-            <div className="w-10 h-10 rounded-full flex items-center justify-center text-2xl"
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xl sm:text-2xl flex-shrink-0"
               style={{ background: `${accent}20`, border: `1px solid ${accent}40` }}>
               {surah.icon}
             </div>
@@ -500,9 +778,9 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
         <div className="flex-1 overflow-hidden flex min-h-0" dir="ltr">
 
           {/* LEFT — Story */}
-          <motion.div className="hidden lg:flex flex-col flex-shrink-0"
+          <motion.div className="hidden lg:flex w-1/2 flex-col flex-shrink-0"
             ref={storyRef}
-            style={{ width: '50%', borderRight: `1px solid ${accent}25`, overflow: 'hidden' }}
+            style={{ borderRight: `1px solid ${accent}25`, overflow: 'hidden' }}
             initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3, duration: 0.6 }}>
             <div style={{ width: '100%', height: '100%' }}>
               <StoryPanel surah={surah} accent={accent} />
@@ -510,11 +788,43 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
           </motion.div>
 
           {/* RIGHT — Surah content */}
-          <div className="overflow-y-auto" style={{ width: '50%' }} dir="rtl">
-            <div className="px-4 pb-20">
+          <div className="overflow-y-auto w-full lg:w-1/2 min-w-0" dir="rtl">
+            <div className="px-3 sm:px-4 pb-20 sm:pb-24">
+
+                {surah.story && !isStoryPlaying && (
+                  <StoryJumpButton accent={accent} onPlayStory={() => playStoryRef.current?.()} />
+                )}
+
+                {/* Mobile story (placed early so it is easy to find on phones) */}
+                {surah.story && (
+                  <motion.div
+                    className="lg:hidden mb-6 rounded-3xl overflow-hidden border h-[320px] sm:h-[360px] flex flex-col"
+                    data-story-panel="true"
+                    ref={storyRef}
+                    style={{ background: `${accent}10`, borderColor: `${accent}25` }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.25 }}
+                  >
+                    <div className="px-4 pt-4 pb-2 flex items-center gap-2 flex-shrink-0" dir="rtl">
+                      <span className="text-lg">🎬</span>
+                      <h3 className="text-white font-black text-sm sm:text-base">قصة السورة</h3>
+                    </div>
+                    <div className="px-2 pb-2 sm:px-3 sm:pb-3 flex-1 min-h-0">
+                      <div className="h-full">
+                        <StoryPanel
+                          surah={surah}
+                          accent={accent}
+                          onPlayReady={(play) => { playStoryRef.current = play; }}
+                          onPlayingChange={setIsStoryPlaying}
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
 
               {/* Bismillah */}
-              <motion.div className="text-center py-6"
+              <motion.div className="text-center py-5 sm:py-6"
                 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }}>
                 <motion.p className="bismillah-text" style={{ textShadow: `0 0 30px ${accent}60` }}
                   animate={{ textShadow: [`0 0 20px ${accent}40`, `0 0 50px ${accent}80`, `0 0 20px ${accent}40`] }}
@@ -523,18 +833,8 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
                 </motion.p>
               </motion.div>
 
-              {/* Mobile story */}
-              {surah.story && (
-                <motion.div className="lg:hidden mb-6 rounded-2xl overflow-hidden"
-                  ref={storyRef}
-                  style={{ minHeight: 280, background: `${accent}10`, border: `1px solid ${accent}25` }}
-                  initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
-                  <StoryPanel surah={surah} accent={accent} />
-                </motion.div>
-              )}
-
               {/* Audio Player */}
-              <motion.div className="glass-card rounded-3xl p-5 mb-6 border"
+              <motion.div className="glass-card rounded-3xl p-3 sm:p-4 md:p-5 mb-6 border"
                 ref={audioCardRef}
                 style={{ borderColor: `${accent}30` }}
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
@@ -548,9 +848,9 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
                     👈 هذا هو مشغل التلاوة
                   </motion.div>
                 )}
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-2 sm:gap-3 mb-4 flex-wrap">
                   <span className="text-xl">🎵</span>
-                  <h3 className="text-white font-bold">مشغل التلاوة</h3>
+                  <h3 className="text-white font-bold text-sm sm:text-base">مشغل التلاوة</h3>
                   {player.loading && (
                     <motion.div className="w-4 h-4 rounded-full border-2 border-t-transparent mr-auto"
                       style={{ borderColor: accent }} animate={{ rotate: 360 }}
@@ -611,10 +911,10 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
 
                 {/* Waveform */}
                 <div className="flex items-center justify-center gap-0.5 h-10 mb-3">
-                  {Array.from({ length: 40 }).map((_, i) => (
+                  {waveformBars.map((bar, i) => (
                     <motion.div key={i} className="rounded-full" style={{ width: 3, background: accent }}
-                      animate={player.playing ? { height: [4, Math.random() * 28 + 4, 4], opacity: [0.4, 1, 0.4] } : { height: 4, opacity: 0.25 }}
-                      transition={{ duration: 0.35 + Math.random() * 0.4, repeat: Infinity, delay: i * 0.025 }} />
+                      animate={player.playing ? { height: [4, bar.peak, 4], opacity: [0.4, 1, 0.4] } : { height: 4, opacity: 0.25 }}
+                      transition={{ duration: bar.duration, repeat: Infinity, delay: bar.delay }} />
                   ))}
                 </div>
 
@@ -630,19 +930,19 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
                 </div>
 
                 {/* Controls */}
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-2 flex-1">
+                <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+                  <div className="flex items-center gap-2 flex-1 min-w-0 sm:min-w-[7rem]">
                     <button onClick={() => player.setVolume(player.volume === 0 ? 0.9 : 0)}
                       className="text-white/50 hover:text-white text-lg">
                       {player.volume === 0 ? '🔇' : player.volume < 0.5 ? '🔉' : '🔊'}
                     </button>
                     <input type="range" min={0} max={1} step={0.05} value={player.volume}
                       onChange={e => player.setVolume(Number(e.target.value))}
-                      className="w-20 h-1.5 rounded-full appearance-none cursor-pointer"
+                      className="w-full max-w-24 sm:max-w-20 h-1.5 rounded-full appearance-none cursor-pointer"
                       style={{ accentColor: accent }} />
                   </div>
                   <motion.button onClick={player.toggle}
-                    className="w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold shadow-2xl flex-shrink-0"
+                    className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-xl sm:text-2xl font-bold shadow-2xl flex-shrink-0"
                     style={{ background: player.error ? '#374151' : `linear-gradient(135deg, ${accent}, #F5C842)` }}
                     whileHover={{ scale: player.error ? 1 : 1.1 }} whileTap={{ scale: 0.9 }}
                     animate={player.playing ? { boxShadow: [`0 0 15px ${accent}60`, `0 0 40px ${accent}90`, `0 0 15px ${accent}60`] } : {}}
@@ -651,9 +951,9 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
                       ? <motion.div className="w-5 h-5 rounded-full border-2 border-t-transparent border-white" animate={{ rotate: 360 }} transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }} />
                       : player.playing ? '⏸' : '▶'}
                   </motion.button>
-                  <div className="flex-1 text-left">
+                  <div className="flex-1 text-left min-w-0 sm:min-w-[7rem]">
                     <p className="text-white/40 text-xs">سورة {surah.name}</p>
-                    <p className="text-white/30 text-xs">{reciter.name}</p>
+                    <p className="text-white/30 text-xs truncate">{reciter.name}</p>
                   </div>
                 </div>
                 {player.error && (
@@ -696,7 +996,7 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
                   {ayat.map((ayah, i) => (
                     <motion.div key={ayah.number}
                       initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 + i * 0.1 }}>
-                      <motion.div className="rounded-2xl p-4 cursor-pointer"
+                      <motion.div className="rounded-2xl p-3 sm:p-4 cursor-pointer"
                         style={{ background: activeAyah === ayah.number ? `${accent}15` : 'transparent',
                           border: `1px solid ${activeAyah === ayah.number ? accent + '40' : 'transparent'}` }}
                         onClick={() => setActiveAyah(activeAyah === ayah.number ? null : ayah.number)}
@@ -706,7 +1006,7 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
                             style={{ background: `${accent}20`, border: `1px solid ${accent}40`, color: accent }}>
                             {ayah.number}
                           </div>
-                          <p className="ayah-text flex-1">
+                          <p className="ayah-text flex-1 min-w-0 break-words">
                             {ayah.arabic}
                             <span className="inline-block mr-2 text-lg" style={{ color: accent }}>۝{ayah.number}</span>
                           </p>
@@ -725,13 +1025,37 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
                           <motion.div key={`tafsir-${ayah.number}`}
                             initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.35 }} className="overflow-hidden">
-                            <div className="mx-4 mb-3 p-4 rounded-2xl"
+                            <div className="mx-2 sm:mx-4 mb-3 p-3 sm:p-4 rounded-2xl"
                               style={{ background: 'rgba(255,255,255,0.06)', border: `1px solid ${accent}30` }}>
                               <div className="flex items-center gap-2 mb-2">
                                 <span>💡</span>
                                 <span className="text-xs font-bold" style={{ color: accent }}>التفسير الميسر</span>
                               </div>
                               <p className="text-white/80 text-sm leading-relaxed">{ayah.tafsir}</p>
+                              <div className="mt-3 flex items-center gap-2 flex-wrap">
+                                <button
+                                  onClick={e => { e.stopPropagation(); tafsirNarrator.speak(ayah.number, ayah.tafsir); }}
+                                  className="text-xs px-3 py-1.5 rounded-full font-bold"
+                                  style={{
+                                    background: tafsirNarrator.activeAyah === ayah.number ? `${accent}30` : `${accent}16`,
+                                    color: '#fff',
+                                    border: `1px solid ${accent}40`,
+                                  }}
+                                >
+                                  {tafsirNarrator.loadingAyah === ayah.number
+                                    ? '⏳ جاري تجهيز الصوت'
+                                    : tafsirNarrator.activeAyah === ayah.number
+                                      ? '⏹ إيقاف التفسير'
+                                      : '🔊 استمع للتفسير'}
+                                </button>
+                                {!tafsirNarrator.available && (
+                                  <span className="text-[11px] text-white/50">تعذّر الاتصال بخدمة الصوت. حاول مرة أخرى.</span>
+                                )}
+                                {tafsirNarrator.available && (
+                                  <span className="text-[11px] text-white/45">وضع أطفال 4-6: خامة طفل ذكر مبسطة.</span>
+                                )}
+                                {tafsirNarrator.error && <span className="text-[11px] text-red-300">{tafsirNarrator.error}</span>}
+                              </div>
                             </div>
                           </motion.div>
                         )}
@@ -766,7 +1090,7 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
                     </div>
                   </motion.div>
                 )}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {[
                     { icon: '👂', label: 'استمعت', done: surah.progress > 0 },
                     { icon: '📖', label: 'قرأت',   done: surah.progress >= 50 },
@@ -791,12 +1115,12 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
         style={{
           position: 'fixed',
           left: 16,
-          bottom: 16,
+          bottom: 'max(16px, env(safe-area-inset-bottom))',
           zIndex: 60,
           borderRadius: 999,
           padding: '8px 12px',
           color: '#fff',
-          fontSize: 13,
+          fontSize: 12,
           fontWeight: 800,
           display: 'flex',
           alignItems: 'center',
@@ -842,21 +1166,21 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
               <div className="flex items-center justify-between gap-2">
                 <button
                   onClick={() => setShowTour(false)}
-                  className="px-3 py-1.5 rounded-xl text-xs text-white/70 hover:text-white border border-white/20"
+                  className="px-3 py-2 rounded-xl text-xs text-white/70 hover:text-white border border-white/20 min-h-11"
                 >
                   تخطي
                 </button>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap justify-end">
                   <button
                     onClick={prevTourStep}
                     disabled={tourStep === 0}
-                    className="px-3 py-1.5 rounded-xl text-xs border border-white/20 text-white disabled:opacity-40"
+                    className="px-3 py-2 rounded-xl text-xs border border-white/20 text-white disabled:opacity-40 min-h-11"
                   >
                     السابق
                   </button>
                   <button
                     onClick={nextTourStep}
-                    className="px-3 py-1.5 rounded-xl text-xs font-black text-black"
+                    className="px-3 py-2 rounded-xl text-xs font-black text-black min-h-11"
                     style={{ background: `linear-gradient(135deg, ${accent}, #F5C842)` }}
                   >
                     {tourStep === TOUR_STEPS.length - 1 ? 'إنهاء' : 'التالي'}

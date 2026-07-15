@@ -170,11 +170,11 @@ export default function ChatExperience({ character, onComplete }: Props) {
       <div className={`absolute inset-0 ${isNoor
         ? 'bg-gradient-to-br from-[#020817] via-[#0A1628] to-[#0F2040]'
         : 'bg-gradient-to-br from-[#020817] via-[#1a0a2e] to-[#2d1b4e]'}`} />
-      <div className={`absolute top-0 right-0 w-96 h-96 rounded-full blur-3xl opacity-20 ${isNoor ? 'bg-sky-500' : 'bg-purple-500'}`} />
-      <div className={`absolute bottom-0 left-0 w-64 h-64 rounded-full blur-3xl opacity-15 ${isNoor ? 'bg-yellow-400' : 'bg-pink-500'}`} />
+      <div className={`absolute top-0 right-0 w-[min(70vw,24rem)] h-[min(70vw,24rem)] rounded-full blur-3xl opacity-20 ${isNoor ? 'bg-sky-500' : 'bg-purple-500'}`} />
+      <div className={`absolute bottom-0 left-0 w-[min(52vw,16rem)] h-[min(52vw,16rem)] rounded-full blur-3xl opacity-15 ${isNoor ? 'bg-yellow-400' : 'bg-pink-500'}`} />
       <div className="absolute inset-0 islamic-pattern opacity-10" />
 
-      <div className="relative z-10 flex flex-col md:flex-row w-full max-w-5xl mx-auto p-4 gap-4">
+      <div className="relative z-10 flex flex-col md:flex-row w-full max-w-5xl mx-auto p-2 sm:p-3 md:p-4 gap-2 sm:gap-4">
 
         {/* Character sidebar */}
         <motion.div
@@ -200,44 +200,44 @@ export default function ChatExperience({ character, onComplete }: Props) {
           initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2, duration: 0.6 }}
         >
           {/* Header */}
-          <div className={`px-6 py-4 border-b border-white/10 flex items-center gap-3 ${isNoor
+          <div className={`px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-b border-white/10 flex items-center gap-2 sm:gap-3 ${isNoor
             ? 'bg-gradient-to-r from-sky-900/40 to-transparent'
             : 'bg-gradient-to-r from-purple-900/40 to-transparent'}`}>
-            <div className="text-2xl">{isNoor ? '🌟' : '🌸'}</div>
-            <div>
-              <h3 className="font-bold text-white text-lg">{isNoor ? 'صالح' : 'هدى'}</h3>
+            <div className="text-xl sm:text-2xl">{isNoor ? '🌟' : '🌸'}</div>
+            <div className="min-w-0">
+              <h3 className="font-bold text-white text-base sm:text-lg truncate">{isNoor ? 'صالح' : 'هدى'}</h3>
               <p className={`text-xs ${isNoor ? 'text-sky-400' : 'text-purple-400'}`}>مرشدك في رحلة القرآن ✨</p>
             </div>
-            <div className="mr-auto flex items-center gap-2">
+            <div className="mr-auto flex items-center gap-1.5 sm:gap-2 shrink-0">
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
               <span className="text-green-400 text-xs">متصل</span>
             </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 min-h-0" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4 min-h-0" style={{ maxHeight: 'min(62vh, calc(100dvh - 16rem))' }}>
             <AnimatePresence initial={false}>
               {messages.map(msg => (
                 <motion.div
                   key={msg.id}
-                  className={`flex gap-3 ${msg.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+                  className={`flex gap-2 sm:gap-3 ${msg.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
                   initial={{ opacity: 0, y: 18, scale: 0.92 }}
                   animate={{ opacity: 1, y: 0,  scale: 1    }}
                   transition={{ duration: 0.35, type: 'spring', stiffness: 220 }}
                 >
                   {msg.type === 'bot' ? (
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-lg ${isNoor
+                    <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center flex-shrink-0 text-base sm:text-lg ${isNoor
                       ? 'bg-sky-500/20 border border-sky-400/30'
                       : 'bg-purple-500/20 border border-purple-400/30'}`}>
                       {isNoor ? '🌟' : '🌸'}
                     </div>
                   ) : (
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-lg bg-yellow-500/20 border border-yellow-400/30">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center flex-shrink-0 text-base sm:text-lg bg-yellow-500/20 border border-yellow-400/30">
                       😊
                     </div>
                   )}
-                  <div className={`max-w-xs md:max-w-sm lg:max-w-md px-5 py-3 rounded-2xl ${msg.type === 'bot' ? 'message-bot' : 'message-user'}`}>
-                    <p className="text-white font-medium leading-relaxed text-base md:text-lg">{msg.text}</p>
+                  <div className={`max-w-[min(78vw,30rem)] md:max-w-sm lg:max-w-md px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl ${msg.type === 'bot' ? 'message-bot' : 'message-user'}`}>
+                    <p className="text-white font-medium leading-relaxed text-sm sm:text-base md:text-lg break-words">{msg.text}</p>
                   </div>
                 </motion.div>
               ))}
@@ -245,12 +245,12 @@ export default function ChatExperience({ character, onComplete }: Props) {
               {isTyping && (
                 <motion.div key="typing" className="flex gap-3"
                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${isNoor
+                  <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-base sm:text-lg ${isNoor
                     ? 'bg-sky-500/20 border border-sky-400/30'
                     : 'bg-purple-500/20 border border-purple-400/30'}`}>
                     {isNoor ? '🌟' : '🌸'}
                   </div>
-                  <div className="message-bot px-5 py-4 rounded-2xl flex items-center gap-2">
+                  <div className="message-bot px-4 sm:px-5 py-3 sm:py-4 rounded-2xl flex items-center gap-2">
                     <span className="typing-dot" /><span className="typing-dot" /><span className="typing-dot" />
                   </div>
                 </motion.div>
@@ -260,10 +260,10 @@ export default function ChatExperience({ character, onComplete }: Props) {
           </div>
 
           {/* Input area */}
-          <div className="p-4 border-t border-white/10">
+          <div className="p-3 sm:p-4 border-t border-white/10">
             <AnimatePresence mode="wait">
               {step === 'waitName' && (
-                <motion.div key="name-input" className="flex gap-3"
+                <motion.div key="name-input" className="flex flex-col sm:flex-row gap-2.5 sm:gap-3"
                   initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
                   <input
                     ref={inputRef}
@@ -272,7 +272,7 @@ export default function ChatExperience({ character, onComplete }: Props) {
                     onChange={e => setInputValue(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleNameSubmit()}
                     placeholder="اكتب اسمك هنا..."
-                    className="flex-1 bg-white/10 border border-white/20 rounded-2xl px-5 py-3 text-white placeholder-white/40 text-lg font-medium focus:outline-none focus:border-yellow-400/60 focus:bg-white/15 transition-all"
+                    className="w-full flex-1 bg-white/10 border border-white/20 rounded-2xl px-4 sm:px-5 py-3 text-white placeholder-white/40 text-base sm:text-lg font-medium focus:outline-none focus:border-yellow-400/60 focus:bg-white/15 transition-all min-h-11"
                     dir="rtl"
                     maxLength={30}
                   />
@@ -280,7 +280,7 @@ export default function ChatExperience({ character, onComplete }: Props) {
                     onClick={handleNameSubmit}
                     disabled={!inputValue.trim()}
                     aria-label="دخول"
-                    className={`min-w-28 px-5 py-3 rounded-2xl font-black text-base md:text-lg whitespace-nowrap transition-all ${inputValue.trim() ? 'btn-gold' : 'bg-white/10 text-white/30 cursor-not-allowed'}`}
+                    className={`w-full sm:w-auto min-w-28 px-5 py-3 rounded-2xl font-black text-sm sm:text-base md:text-lg whitespace-nowrap transition-all min-h-11 ${inputValue.trim() ? 'btn-gold' : 'bg-white/10 text-white/30 cursor-not-allowed'}`}
                     whileHover={inputValue.trim() ? { scale: 1.05 } : {}}
                     whileTap={inputValue.trim()   ? { scale: 0.95 } : {}}
                   >
@@ -293,20 +293,20 @@ export default function ChatExperience({ character, onComplete }: Props) {
               )}
 
               {step === 'waitAge' && (
-                <motion.div key="age-input" className="grid grid-cols-3 gap-3"
+                <motion.div key="age-input" className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3"
                   initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
                   {ageGroups.map((age, i) => (
                     <motion.button
                       key={age.value}
-                      className={`age-card p-4 text-center ${selectedAge === age.value ? 'selected' : ''}`}
+                      className={`age-card p-3 sm:p-4 text-center min-h-11 ${selectedAge === age.value ? 'selected' : ''}`}
                       onClick={() => handleAgeSelect(age.value)}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: i * 0.1 }}
                       whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                     >
-                      <div className="text-3xl mb-2">{age.emoji}</div>
-                      <div className="text-white font-bold text-sm">{age.label}</div>
+                      <div className="text-2xl sm:text-3xl mb-1.5 sm:mb-2">{age.emoji}</div>
+                      <div className="text-white font-bold text-xs sm:text-sm">{age.label}</div>
                       <div className="text-white/50 text-xs mt-1">{age.desc}</div>
                     </motion.button>
                   ))}

@@ -107,53 +107,53 @@ const TaqeemHifzChallenge: React.FC<TaqeemHifzChallengeProps> = ({
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 rtl">
-      <div className="bg-white/80 rounded-xl p-4 text-lg font-bold text-purple-900 shadow">
+    <div className="flex flex-col items-center gap-3 sm:gap-4 rtl w-full px-2 sm:px-0">
+      <div className="bg-white/80 rounded-xl p-3 sm:p-4 text-base sm:text-lg font-bold text-purple-900 shadow text-center w-full max-w-[min(100%,42rem)] leading-relaxed">
         <span>{ayahStart}</span>
         <span className="text-gray-400"> ... </span>
         <span className="text-gray-500">(أكمل الآية بصوتك)</span>
       </div>
       {audioUrl && (
-        <audio src={audioUrl} controls className="mb-2" />
+        <audio src={audioUrl} controls className="mb-2 w-full max-w-[min(100%,26rem)]" />
       )}
       <div className="flex flex-col items-center gap-2 w-full">
         {!recording && (
           <button
-            className="rounded-full p-4 text-white text-2xl bg-purple-600 hover:bg-purple-700 shadow-lg mb-2"
+            className="rounded-full px-5 sm:px-6 py-3 sm:py-4 text-white text-xl sm:text-2xl bg-purple-600 hover:bg-purple-700 shadow-lg mb-2 min-h-11"
             onClick={startRecording}
             aria-label="بدء التسجيل"
           >
-            <span style={{fontSize:28}}>🎙️</span>
+            <span style={{ fontSize: 26 }}>🎙️</span>
           </button>
         )}
         {recording && (
           <button
-            className="flex flex-col items-center justify-center rounded-full border-4 border-white p-6 text-white text-3xl bg-red-600 animate-pulse shadow-2xl mb-2 transition hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-300"
-            style={{ minWidth: 100, minHeight: 100 }}
+            className="flex flex-col items-center justify-center rounded-full border-4 border-white px-5 sm:px-6 py-4 sm:py-5 text-white text-2xl sm:text-3xl bg-red-600 animate-pulse shadow-2xl mb-2 transition hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-300 min-h-11"
+            style={{ minWidth: 88, minHeight: 88 }}
             onClick={stopRecording}
             aria-label="إيقاف التسجيل"
           >
-            <span style={{fontSize:40}}>⏹️</span>
-            <span className="text-base font-bold mt-2">إيقاف التسجيل</span>
+            <span style={{ fontSize: 34 }}>⏹️</span>
+            <span className="text-sm sm:text-base font-bold mt-1.5 sm:mt-2">إيقاف التسجيل</span>
           </button>
         )}
-        <div className="text-purple-900 font-bold text-lg flex items-center gap-2 mb-2">
+        <div className="text-purple-900 font-bold text-sm sm:text-base md:text-lg flex items-center justify-center gap-2 mb-2 text-center px-1">
           <span role="img" aria-label="ميكروفون">🎤</span>
           اضغط على الميكروفون وسجل تلاوتك للآية المطلوبة
         </div>
-        {recording && <div className="text-purple-700 font-bold animate-pulse">يتم الآن الاستماع... تحدث الآن!</div>}
+        {recording && <div className="text-purple-700 font-bold animate-pulse text-sm sm:text-base text-center">يتم الآن الاستماع... تحدث الآن!</div>}
       </div>
       {userAudio && (
-        <audio src={userAudio} controls className="mt-2" />
+        <audio src={userAudio} controls className="mt-2 w-full max-w-[min(100%,26rem)]" />
       )}
       {result === 'success' && (
-        <div className="flex items-center gap-2 text-green-600 font-bold mt-2 animate-bounce">
+        <div className="flex items-center justify-center gap-2 text-green-600 font-bold mt-2 animate-bounce text-sm sm:text-base text-center px-1">
           <span>✅</span> أحسنت! تلاوتك صحيحة
           <audio src="/audios/clap.mp3" autoPlay style={{display:'none'}} />
         </div>
       )}
       {result === 'fail' && (
-        <div className="flex items-center gap-2 text-red-600 font-bold mt-2">
+        <div className="flex items-center justify-center gap-2 text-red-600 font-bold mt-2 text-sm sm:text-base text-center px-1">
           <span>❌</span> {error || 'حاول مرة أخرى، حفظك غير سليم أو به أخطاء'}
         </div>
       )}

@@ -26,9 +26,9 @@ export default function CharacterLujain({ size = 280, glowing = false, className
       <Image
         src="/lujain.png"
         alt="هدى"
-        width={size}
-        height={size}
-        className="object-contain w-full h-full"
+        fill
+        sizes={`${size}px`}
+        className="object-contain"
         priority
       />
       <motion.div

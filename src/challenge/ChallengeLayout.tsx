@@ -38,20 +38,20 @@ export default function ChallengeLayout({
   showSuccess = false,
 }: Props) {
   return (
-    <div dir="rtl" className="min-h-screen flex flex-col relative overflow-hidden">
+    <div dir="rtl" className="min-h-screen flex flex-col relative overflow-hidden overflow-x-hidden">
       {/* فرض خلفية التحدي الموحدة */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <img src="/images/challenge-bg.png" alt="خلفية التحدي" className="w-full h-full object-cover" />
       </div>
       {/* باقي عناصر الصفحة */}
       <ChallengeHeader surahName={surahName} stars={stars} xp={xp} />
-      <div className="flex-1 flex flex-col md:flex-row-reverse gap-8 px-2 md:px-12 py-8 relative z-10">
+      <div className="flex-1 flex flex-col lg:flex-row-reverse gap-4 sm:gap-6 lg:gap-8 px-3 sm:px-4 md:px-8 lg:px-12 py-4 sm:py-6 lg:py-8 relative z-10">
         {/* RIGHT: Sidebar */}
-        <div className="w-full md:w-80 flex-shrink-0 mb-8 md:mb-0">
+        <div className="w-full lg:w-80 xl:w-84 flex-shrink-0 mb-2 lg:mb-0">
           <ChallengeSidebar child={child} progress={progress} />
         </div>
         {/* LEFT: Main challenge area */}
-        <div className="flex-1 flex flex-col items-center justify-center relative bg-white/40 rounded-3xl shadow-xl p-6 min-h-[500px]">
+        <div className="w-full flex-1 flex flex-col items-center justify-center relative bg-white/40 rounded-3xl shadow-xl p-3 sm:p-4 md:p-5 lg:p-6 min-h-[clamp(22rem,58vh,31.25rem)]">
           {showSuccess ? (
             <ChallengeSuccess onNext={onNext} />
           ) : (

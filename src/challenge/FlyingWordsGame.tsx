@@ -70,24 +70,24 @@ export default function FlyingWordsGame({ ayat, onSuccess }: Props) {
       <motion.div
         initial={{ opacity: 0, scale: 0.7 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col items-center gap-4 py-8"
+        className="flex flex-col items-center gap-3 sm:gap-4 py-6 sm:py-8 px-3"
       >
         <motion.span
           animate={{ rotate: [0, 15, -15, 0], scale: [1, 1.2, 1] }}
           transition={{ repeat: Infinity, duration: 1.2 }}
-          className="text-7xl"
+          className="text-6xl sm:text-7xl"
         >
           🏆
         </motion.span>
-        <div className="text-2xl font-black text-white drop-shadow-lg">أنت بطل! 🎉</div>
-        <div className="flex gap-1 mt-1">
+        <div className="text-[clamp(1.25rem,5vw,1.5rem)] font-black text-white drop-shadow-lg text-center">أنت بطل! 🎉</div>
+        <div className="flex gap-1 mt-1 flex-wrap justify-center">
           {ayat.map((_, i) => (
             <motion.span
               key={i}
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: i * 0.15 }}
-              className={`text-3xl ${i < score ? 'text-yellow-400' : 'text-gray-400'}`}
+              className={`text-2xl sm:text-3xl ${i < score ? 'text-yellow-400' : 'text-gray-400'}`}
             >
               ⭐
             </motion.span>
@@ -99,17 +99,17 @@ export default function FlyingWordsGame({ ayat, onSuccess }: Props) {
   }
 
   return (
-    <div className="w-full max-w-lg mx-auto flex flex-col gap-6 items-center">
+    <div className="w-full max-w-[min(100%,44rem)] mx-auto flex flex-col gap-4 sm:gap-6 items-center px-2 sm:px-0">
       {/* شريط التقدم */}
-      <div className="flex gap-2">
+      <div className="flex gap-1.5 sm:gap-2 flex-wrap justify-center">
         {ayat.map((_, i) => (
           <motion.div
             key={i}
             animate={{ scale: i === currentIdx ? 1.4 : 1 }}
             className={`rounded-full transition-all ${
-              i < currentIdx ? 'bg-green-400 w-4 h-4' :
-              i === currentIdx ? 'bg-yellow-400 w-4 h-4' :
-              'bg-white/30 w-3 h-3'
+              i < currentIdx ? 'bg-green-400 w-3.5 h-3.5 sm:w-4 sm:h-4' :
+              i === currentIdx ? 'bg-yellow-400 w-3.5 h-3.5 sm:w-4 sm:h-4' :
+              'bg-white/30 w-2.5 h-2.5 sm:w-3 sm:h-3'
             }`}
           />
         ))}
@@ -122,21 +122,21 @@ export default function FlyingWordsGame({ ayat, onSuccess }: Props) {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
-          className="w-full rounded-3xl p-6 shadow-2xl border-2 border-purple-400/60 text-center"
+          className="w-full rounded-3xl p-4 sm:p-5 md:p-6 shadow-2xl border-2 border-purple-400/60 text-center"
           style={{ background: 'rgba(49,10,130,0.82)' }}
         >
-          <div className="text-yellow-300 font-bold text-sm mb-3">🎮 أوجد الكلمة الصحيحة!</div>
+          <div className="text-yellow-300 font-bold text-xs sm:text-sm mb-3">🎮 أوجد الكلمة الصحيحة!</div>
           <div
-            className="flex flex-row items-center justify-center gap-3 flex-wrap"
+            className="flex flex-row items-center justify-center gap-2 sm:gap-3 flex-wrap max-w-full"
             style={{ fontFamily: 'Tajawal, Arial' }}
           >
             {before && (
-              <span className="text-2xl md:text-3xl font-black text-white">{before}</span>
+              <span className="text-[clamp(1.125rem,4.8vw,1.875rem)] font-black text-white leading-relaxed break-words max-w-full">{before}</span>
             )}
             <motion.span
               animate={showResult ? {} : { opacity: [1, 0.4, 1] }}
               transition={{ repeat: Infinity, duration: 1 }}
-              className={`inline-block px-4 py-2 rounded-xl border-2 min-w-[80px] text-2xl md:text-3xl font-black text-center transition-colors ${
+              className={`inline-block px-3 sm:px-4 py-2 rounded-xl border-2 min-w-[clamp(4.5rem,22vw,6.75rem)] text-[clamp(1.125rem,4.8vw,1.875rem)] font-black text-center transition-colors ${
                 showResult && selected === correctWord
                   ? 'bg-green-400 border-green-300 text-white'
                   : showResult
@@ -147,14 +147,14 @@ export default function FlyingWordsGame({ ayat, onSuccess }: Props) {
               {selected ?? '؟؟؟'}
             </motion.span>
             {after && (
-              <span className="text-2xl md:text-3xl font-black text-white">{after}</span>
+              <span className="text-[clamp(1.125rem,4.8vw,1.875rem)] font-black text-white leading-relaxed break-words max-w-full">{after}</span>
             )}
           </div>
           {showResult && selected !== correctWord && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="mt-3 text-green-300 font-bold text-lg"
+              className="mt-3 text-green-300 font-bold text-base sm:text-lg break-words"
             >
               الإجابة الصحيحة: {correctWord}
             </motion.div>
@@ -163,7 +163,7 @@ export default function FlyingWordsGame({ ayat, onSuccess }: Props) {
       </AnimatePresence>
 
       {/* فقاعات الكلمات الطائرة */}
-      <div className="flex flex-wrap gap-4 justify-center w-full py-4">
+      <div className="flex flex-wrap gap-2.5 sm:gap-4 justify-center w-full py-3 sm:py-4">
         {options.map((opt, i) => {
           const color = BUBBLE_COLORS[i % BUBBLE_COLORS.length];
           const isCorrect = opt === correctWord;
@@ -195,7 +195,7 @@ export default function FlyingWordsGame({ ayat, onSuccess }: Props) {
               whileTap={{ scale: 0.88 }}
               onClick={() => handleSelect(opt)}
               disabled={showResult}
-              className="relative px-7 py-5 rounded-full font-black text-xl shadow-2xl border-4 border-white/80 min-w-[110px] text-center"
+              className="relative px-4 sm:px-6 md:px-7 py-3 sm:py-4 md:py-5 rounded-full font-black text-base sm:text-lg md:text-xl leading-tight shadow-2xl border-4 border-white/80 min-w-[88px] sm:min-w-[110px] min-h-11 text-center"
               style={{
                 background: showResult
                   ? isCorrect ? '#22c55e' : isSelected ? '#ef4444' : color.bg + '99'
@@ -207,7 +207,7 @@ export default function FlyingWordsGame({ ayat, onSuccess }: Props) {
               }}
             >
               {/* نجمة زخرفية */}
-              <span className="absolute -top-2 -right-1 text-sm select-none">
+              <span className="absolute -top-1.5 -right-1 text-xs sm:text-sm select-none">
                 {['⭐', '✨', '💫', '🌟'][i % 4]}
               </span>
               {opt}
@@ -215,7 +215,7 @@ export default function FlyingWordsGame({ ayat, onSuccess }: Props) {
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="absolute -top-3 -left-3 text-2xl"
+                  className="absolute -top-2.5 -left-2.5 text-xl sm:text-2xl"
                 >
                   ✅
                 </motion.span>
@@ -225,7 +225,7 @@ export default function FlyingWordsGame({ ayat, onSuccess }: Props) {
         })}
       </div>
 
-      <div className="text-lg font-bold">
+      <div className="text-base sm:text-lg font-bold">
         {ayat.map((_, i) => (
           <span key={i} className={i < score ? 'text-yellow-400' : 'text-white/30'}>⭐</span>
         ))}

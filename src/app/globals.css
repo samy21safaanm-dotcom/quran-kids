@@ -18,6 +18,7 @@
   /* Typography */
   --font-ui:     'Cairo', 'Tajawal', 'Arial', sans-serif;
   --font-quran:  'Amiri', 'Traditional Arabic', serif;
+  --tap-min-size: 44px;
 }
 
 /* ── Reset & Base ──────────────────────────────────────────────────────────── */
@@ -54,8 +55,8 @@ p, h1, h2, h3, h4, h5, h6, span, button, input, label, div {
 /* Quran text class */
 .font-quran {
   font-family: var(--font-quran) !important;
-  font-size: 1.6rem;
-  line-height: 2.4;
+  font-size: clamp(1.2rem, 3.2vw, 1.6rem);
+  line-height: clamp(2, 3.6vw, 2.4);
   letter-spacing: 0.02em;
   direction: rtl;
   text-align: right;
@@ -64,8 +65,8 @@ p, h1, h2, h3, h4, h5, h6, span, button, input, label, div {
 
 .font-quran-lg {
   font-family: var(--font-quran) !important;
-  font-size: 2rem;
-  line-height: 2.6;
+  font-size: clamp(1.45rem, 4.1vw, 2rem);
+  line-height: clamp(2.1, 4vw, 2.6);
   direction: rtl;
   text-align: right;
 }
@@ -165,6 +166,7 @@ p, h1, h2, h3, h4, h5, h6, span, button, input, label, div {
   transition: all 0.3s ease;
   box-shadow: 0 4px 20px rgba(245,200,66,0.4);
   font-family: var(--font-ui);
+  min-height: var(--tap-min-size);
 }
 .btn-gold:hover {
   transform: translateY(-3px) scale(1.05);
@@ -178,6 +180,7 @@ p, h1, h2, h3, h4, h5, h6, span, button, input, label, div {
   transition: all 0.3s ease;
   box-shadow: 0 4px 20px rgba(124,58,237,0.4);
   font-family: var(--font-ui);
+  min-height: var(--tap-min-size);
 }
 .btn-purple:hover {
   transform: translateY(-3px) scale(1.05);
@@ -260,12 +263,12 @@ p, h1, h2, h3, h4, h5, h6, span, button, input, label, div {
   background: linear-gradient(135deg, rgba(245,200,66,0.04), rgba(255,255,255,0.02));
   border: 1px solid rgba(245,200,66,0.15);
   border-radius: 24px;
-  padding: 2rem;
+  padding: clamp(0.9rem, 3vw, 2rem);
 }
 .ayah-text {
   font-family: var(--font-quran);
-  font-size: 1.75rem;
-  line-height: 2.5;
+  font-size: clamp(1.1rem, 4vw, 1.75rem);
+  line-height: clamp(1.9, 3.5vw, 2.5);
   direction: rtl;
   text-align: right;
   color: #ffffff;
@@ -273,19 +276,25 @@ p, h1, h2, h3, h4, h5, h6, span, button, input, label, div {
 }
 .ayah-text-lg {
   font-family: var(--font-quran);
-  font-size: 2.25rem;
-  line-height: 2.8;
+  font-size: clamp(1.35rem, 4.8vw, 2.25rem);
+  line-height: clamp(2, 4vw, 2.8);
   direction: rtl;
   text-align: right;
   color: #ffffff;
 }
 .bismillah-text {
   font-family: var(--font-quran);
-  font-size: 2rem;
-  line-height: 2;
+  font-size: clamp(1.4rem, 4.5vw, 2rem);
+  line-height: clamp(1.8, 3vw, 2);
   direction: rtl;
   text-align: center;
   color: #ffffff;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
 }
 
 /* ── RTL Utilities ──────────────────────────────────────────────────────────── */
@@ -324,4 +333,62 @@ p, h1, h2, h3, h4, h5, h6, span, button, input, label, div {
   filter: blur(60px);
   opacity: 0.5;
   z-index: 0;
+}
+
+/* ── Responsive Breakpoints ───────────────────────────────────────────────── */
+
+/* Large Desktop (≥1440px) */
+@media (min-width: 1440px) {
+  html { font-size: 17px; }
+}
+
+/* Desktop (1200–1439px) */
+@media (min-width: 1200px) and (max-width: 1439px) {
+  html { font-size: 16px; }
+}
+
+/* Laptop (992–1199px) */
+@media (min-width: 992px) and (max-width: 1199px) {
+  html { font-size: 15.5px; }
+  .mushaf-container { border-radius: 22px; }
+}
+
+/* Tablet Landscape (768–991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+  html { font-size: 15px; }
+  .mushaf-container { border-radius: 20px; }
+  .chat-container { backdrop-filter: blur(22px); }
+}
+
+/* Tablet Portrait (600–767px) */
+@media (min-width: 600px) and (max-width: 767px) {
+  html { font-size: 14.5px; }
+  .mushaf-container { border-radius: 18px; }
+  .typing-dot { width: 7px; height: 7px; }
+}
+
+/* Mobile Large (480–599px) */
+@media (min-width: 480px) and (max-width: 599px) {
+  html { font-size: 14px; }
+  .mushaf-container { border-radius: 16px; }
+  .message-bot,
+  .message-user { border-radius: 16px; }
+  .age-card { border-radius: 16px; }
+}
+
+/* Mobile Small (<480px) */
+@media (max-width: 479px) {
+  html { font-size: 13.5px; }
+  .gold-text { background-size: 160% auto; }
+  .mushaf-container { border-radius: 14px; }
+  .message-bot,
+  .message-user { border-radius: 14px; }
+  .typing-dot { width: 6px; height: 6px; }
+  .age-card { border-radius: 14px; }
+  .cinematic-glow {
+    width: min(92vw, 440px);
+    height: min(44vw, 180px);
+    top: 24%;
+    filter: blur(36px);
+  }
 }

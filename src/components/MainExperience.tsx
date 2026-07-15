@@ -397,43 +397,45 @@ export default function MainExperience({ character, childName, ageGroup, onResta
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
+      {!showJuzAmma && (
+        <>
       {/* Background */}
       <div className={`fixed inset-0 bg-gradient-to-br ${theme.gradient} from-[#020817]`} />
       <div className="fixed inset-0 islamic-pattern opacity-10" />
 
-      <motion.div className="fixed top-0 right-0 w-96 h-96 rounded-full blur-3xl opacity-15"
+      <motion.div className="fixed top-0 right-0 w-[min(70vw,24rem)] h-[min(70vw,24rem)] rounded-full blur-3xl opacity-15"
         style={{ background: theme.primary }}
         animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
         transition={{ duration: 6, repeat: Infinity }} />
-      <motion.div className="fixed bottom-0 left-0 w-64 h-64 rounded-full blur-3xl opacity-10"
+      <motion.div className="fixed bottom-0 left-0 w-[min(52vw,16rem)] h-[min(52vw,16rem)] rounded-full blur-3xl opacity-10"
         style={{ background: theme.secondary }}
         animate={{ scale: [1.2, 1, 1.2], opacity: [0.08, 0.15, 0.08] }}
         transition={{ duration: 8, repeat: Infinity, delay: 2 }} />
 
       {/* Force true centering regardless of RTL */}
       <div
-        className="relative z-10 px-4 pb-24"
+        className="relative z-10 px-3 sm:px-4 pb-24"
         style={{ maxWidth: 896, marginLeft: 'auto', marginRight: 'auto' }}
       >
 
         {/* Header */}
-        <motion.header className="flex items-center justify-between py-6" dir="rtl"
+        <motion.header className="flex items-center justify-between gap-2 sm:gap-3 py-4 sm:py-6" dir="rtl"
           initial={{ y: -30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
           <div className="flex items-center gap-3">
             <motion.div className="text-3xl"
               animate={{ rotate: [0, 10, -10, 0] }} transition={{ duration: 4, repeat: Infinity }}>📖</motion.div>
             <div>
-              <h1 className="text-xl font-black gold-text">نبأ</h1>
+              <h1 className="text-lg sm:text-xl font-black gold-text">نبأ</h1>
               <p className="text-white/50 text-xs">رحلتك الإيمانية</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <p className="text-white font-bold text-sm">مرحبًا، {childName}!</p>
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <div className="text-right min-w-0">
+              <p className="text-white font-bold text-xs sm:text-sm truncate">مرحبًا، {childName}!</p>
               <p className="text-white/50 text-xs">{config.label}</p>
             </div>
             <motion.div
-              className={`w-10 h-10 rounded-full flex items-center justify-center text-lg border ${isNoor ? 'bg-sky-500/20 border-sky-400/40' : 'bg-purple-500/20 border-purple-400/40'}`}
+              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-base sm:text-lg border flex-shrink-0 ${isNoor ? 'bg-sky-500/20 border-sky-400/40' : 'bg-purple-500/20 border-purple-400/40'}`}
               whileHover={{ scale: 1.1 }}>
               {isNoor ? '👦' : '👧'}
             </motion.div>
@@ -449,15 +451,15 @@ export default function MainExperience({ character, childName, ageGroup, onResta
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4 }}>
 
               {/* Welcome hero */}
-              <motion.div className="glass-card-gold rounded-3xl p-6 mb-6 relative overflow-hidden"
+              <motion.div className="glass-card-gold rounded-3xl p-4 sm:p-6 mb-6 relative overflow-hidden"
                 initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.3 }}>
-                <div className="flex items-center gap-4">
-                  <motion.div animate={{ y: [-5, 5, -5] }} transition={{ duration: 3, repeat: Infinity }}>
+                <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 text-center sm:text-right">
+                  <motion.div className="scale-90 sm:scale-100 origin-center" animate={{ y: [-5, 5, -5] }} transition={{ duration: 3, repeat: Infinity }}>
                     {isNoor ? <CharacterNoor size={120} glowing /> : <CharacterLujain size={120} glowing />}
                   </motion.div>
-                  <div className="flex-1">
-                    <h2 className="text-2xl font-black text-white mb-1">أهلاً يا {childName}! 🌟</h2>
-                    <p className="text-white/70 text-sm leading-relaxed mb-3">
+                  <div className="flex-1 w-full min-w-0">
+                    <h2 className="text-[clamp(1.25rem,4.8vw,1.5rem)] font-black text-white mb-1 break-words">أهلاً يا {childName}! 🌟</h2>
+                    <p className="text-white/70 text-xs sm:text-sm leading-relaxed mb-3">
                       {ageGroup === '4-6' ? 'هيا نلعب ونتعلم معًا اليوم!'
                         : ageGroup === '7-10' ? 'مغامرة جديدة تنتظرك اليوم!'
                         : 'رحلة علم ومعرفة تبدأ الآن!'}
@@ -488,30 +490,30 @@ export default function MainExperience({ character, childName, ageGroup, onResta
                 <motion.div className="absolute inset-0 pointer-events-none"
                   animate={{ opacity: [0.3, 0.6, 0.3] }} transition={{ duration: 3, repeat: Infinity }}
                   style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(245,200,66,0.15) 0%, transparent 70%)' }} />
-                <div className="relative z-10 p-7 md:p-8 min-h-[180px] flex items-center gap-5">
-                  <motion.div className="text-7xl md:text-8xl"
+                <div className="relative z-10 p-4 sm:p-6 md:p-8 min-h-[150px] sm:min-h-[180px] flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-5 text-center sm:text-right">
+                  <motion.div className="text-5xl sm:text-7xl md:text-8xl"
                     animate={{ y: [-4, 4, -4], rotate: [-5, 5, -5] }} transition={{ duration: 3, repeat: Infinity }}>🌙</motion.div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-white font-black text-2xl md:text-3xl">عالم جزء عم</h3>
-                      <span className="bg-yellow-400/20 border border-yellow-400/40 text-yellow-400 text-sm px-3 py-1 rounded-full font-bold">جديد ✨</span>
+                  <div className="flex-1 w-full min-w-0">
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-2">
+                      <h3 className="text-white font-black text-xl sm:text-2xl md:text-3xl">عالم جزء عم</h3>
+                      <span className="bg-yellow-400/20 border border-yellow-400/40 text-yellow-400 text-xs sm:text-sm px-3 py-1 rounded-full font-bold">جديد ✨</span>
                     </div>
-                    <p className="text-white/70 text-base md:text-lg mb-4">٣٧ سورة مباركة بتجربة سينمائية تفاعلية</p>
-                    <div className="flex items-center gap-4">
-                      <div className="flex gap-1">
+                    <p className="text-white/70 text-sm sm:text-base md:text-lg mb-3 sm:mb-4">٣٧ سورة مباركة بتجربة سينمائية تفاعلية</p>
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-4">
+                      <div className="flex gap-1 justify-center">
                         {['🌅','🌙','☀️','⭐','🌊'].map((e, i) => <span key={i} className="text-xl md:text-2xl">{e}</span>)}
                       </div>
-                      <span className="text-white/50 text-sm md:text-base">استكشف السور</span>
+                      <span className="text-white/50 text-xs sm:text-sm md:text-base">استكشف السور</span>
                     </div>
                   </div>
-                  <motion.div className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center text-2xl md:text-3xl font-bold"
+                  <motion.div className="w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center text-xl md:text-3xl font-bold shrink-0"
                     style={{ background: 'linear-gradient(135deg, #F5C842, #C9A227)' }}
                     animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 2, repeat: Infinity }}>←</motion.div>
                 </div>
               </motion.div>
 
               {/* Daily verse */}
-              <motion.div className="glass-card rounded-3xl p-5 mb-6 border border-yellow-400/20"
+              <motion.div className="glass-card rounded-3xl p-4 sm:p-5 mb-6 border border-yellow-400/20"
                 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-xl">🌙</span>
@@ -527,7 +529,7 @@ export default function MainExperience({ character, childName, ageGroup, onResta
               <h3 className="text-white/70 text-sm font-bold mb-4 flex items-center gap-2">
                 <span>⚡</span> استكشف الأنشطة
               </h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 {features.map((feature, i) => (
                   <motion.div key={feature.title}
                     className={`glass-card bg-gradient-to-br ${feature.color} border ${feature.border} rounded-2xl p-5 cursor-pointer relative overflow-hidden`}
@@ -543,7 +545,7 @@ export default function MainExperience({ character, childName, ageGroup, onResta
                     <div className="absolute top-3 left-3 text-white/35 text-[11px] font-bold px-2 py-1 rounded-full border border-white/15 bg-black/10">
                       جديد
                     </div>
-                    <div className="text-4xl mb-3">{feature.icon}</div>
+                    <div className="text-3xl sm:text-4xl mb-3">{feature.icon}</div>
                     <h4 className="text-white font-bold text-base mb-1">{feature.title}</h4>
                     <p className="text-white/60 text-xs leading-relaxed">{getFeatureDesc(feature)}</p>
                     <div className="mt-3 flex items-center gap-1 text-yellow-300/85 text-xs font-bold">
@@ -600,7 +602,7 @@ export default function MainExperience({ character, childName, ageGroup, onResta
           {activeTab === 'games' && (
             <motion.div key="games" dir="rtl"
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-4">
-              <h2 className="text-2xl font-black text-white mb-6">🎮 الألعاب التعليمية</h2>
+              <h2 className="text-xl sm:text-2xl font-black text-white mb-6">🎮 الألعاب التعليمية</h2>
               {[
                 { icon: '🧩', title: 'لعبة الكلمات',      desc: 'رتب الآيات الكريمة',       points: 30 },
                 { icon: '🎯', title: 'اختبار المعلومات',   desc: 'أسئلة إسلامية ممتعة',      points: 50 },
@@ -635,13 +637,13 @@ export default function MainExperience({ character, childName, ageGroup, onResta
                   animate={{ y: [-5, 5, -5] }} transition={{ duration: 3, repeat: Infinity }}>
                   {isNoor ? <CharacterNoor size={160} glowing /> : <CharacterLujain size={160} glowing />}
                 </motion.div>
-                <h2 className="text-3xl font-black text-white">{childName}</h2>
+                <h2 className="text-2xl sm:text-3xl font-black text-white break-words">{childName}</h2>
                 <p className="text-white/50 mt-1">{config.label}</p>
                 <div className="flex justify-center gap-2 mt-3">
                   {[...Array(3)].map((_, i) => <span key={i} className="text-yellow-400 text-xl">⭐</span>)}
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {[
                   { label: 'النقاط',     value: '٢٥', icon: '⭐' },
                   { label: 'الأيام',     value: '١',  icon: '📅' },
@@ -668,15 +670,15 @@ export default function MainExperience({ character, childName, ageGroup, onResta
       {/* Bottom navigation */}
       <motion.nav className="fixed bottom-0 left-0 right-0 z-50"
         initial={{ y: 100 }} animate={{ y: 0 }} transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}>
-        <div className="px-4 pb-4" style={{ maxWidth: 896, marginLeft: 'auto', marginRight: 'auto' }} dir="ltr">
+        <div className="px-2 sm:px-4 pb-[max(12px,env(safe-area-inset-bottom))]" style={{ maxWidth: 896, marginLeft: 'auto', marginRight: 'auto' }} dir="ltr">
           <div className="glass-card border border-white/10 rounded-2xl p-2 flex justify-around">
             {tabs.map(tab => (
               <motion.button key={tab.id}
-                className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
+                className={`flex flex-col items-center gap-1 px-2 sm:px-4 py-2 rounded-xl transition-all min-h-11 ${
                   activeTab === tab.id ? 'bg-yellow-400/20 text-yellow-400' : 'text-white/40 hover:text-white/70'}`}
                 onClick={() => setActiveTab(tab.id)}
                 whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <span className="text-xl">{tab.icon}</span>
+                <span className="text-lg sm:text-xl">{tab.icon}</span>
                 <span className="text-xs font-medium">{tab.label}</span>
                 {activeTab === tab.id && (
                   <motion.div className="w-1 h-1 rounded-full bg-yellow-400" layoutId="navDot" />
@@ -686,6 +688,8 @@ export default function MainExperience({ character, childName, ageGroup, onResta
           </div>
         </div>
       </motion.nav>
+        </>
+      )}
 
       {/* Juz Amma overlay */}
       <AnimatePresence>
@@ -713,7 +717,7 @@ export default function MainExperience({ character, childName, ageGroup, onResta
               onClick={() => setShowAyahMeaning(false)}
             />
             <motion.div
-              className="relative w-full max-w-xl rounded-3xl border border-yellow-300/30 p-6 md:p-7"
+              className="relative w-full max-w-xl rounded-3xl border border-yellow-300/30 p-4 sm:p-6 md:p-7 max-h-[90vh] overflow-y-auto"
               style={{ background: 'linear-gradient(160deg, rgba(18,20,45,0.95), rgba(56,22,93,0.95))' }}
               initial={{ scale: 0.9, y: 24, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
@@ -760,7 +764,7 @@ export default function MainExperience({ character, childName, ageGroup, onResta
                 <button
                   type="button"
                   onClick={handleAyahComplete}
-                  className="px-5 py-2 rounded-xl font-bold text-purple-900 bg-yellow-300 hover:bg-yellow-200 transition"
+                  className="px-5 py-2 rounded-xl font-bold text-purple-900 bg-yellow-300 hover:bg-yellow-200 transition min-h-11"
                 >
                   جميل! سأطبقها 🌟
                 </button>
@@ -826,7 +830,7 @@ export default function MainExperience({ character, childName, ageGroup, onResta
             />
 
             <motion.div
-              className="relative w-full max-w-5xl h-[86vh] rounded-3xl border border-blue-300/30 p-6 md:p-7"
+              className="relative w-full max-w-5xl h-[min(90vh,820px)] rounded-3xl border border-blue-300/30 p-4 sm:p-6 md:p-7 flex flex-col"
               style={{ background: 'linear-gradient(155deg, rgba(10,22,49,0.96), rgba(35,20,78,0.95))' }}
               initial={{ scale: 0.9, y: 20, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
@@ -834,16 +838,16 @@ export default function MainExperience({ character, childName, ageGroup, onResta
               transition={{ type: 'spring', stiffness: 220, damping: 24 }}
             >
               <div className="flex items-center justify-between mb-4" dir="rtl">
-                <div>
-                  <h3 className="text-white font-black text-2xl md:text-3xl">قصص الأنبياء</h3>
-                  <p className="text-white/60 text-sm mt-1">قصة موسعة • معلومات أساسية • درس عملي • تطبيق يومي</p>
+                <div className="min-w-0">
+                  <h3 className="text-white font-black text-xl sm:text-2xl md:text-3xl">قصص الأنبياء</h3>
+                  <p className="text-white/60 text-xs sm:text-sm mt-1">قصة موسعة • معلومات أساسية • درس عملي • تطبيق يومي</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap justify-end">
                   {speechSupported && (
                     <button
                       type="button"
                       onClick={speakCurrentStory}
-                      className={`px-3 py-2 rounded-xl text-sm font-bold transition ${isStorySpeaking ? 'bg-red-300 text-red-900 hover:bg-red-200' : 'bg-cyan-300 text-slate-900 hover:bg-cyan-200'}`}
+                      className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition min-h-11 ${isStorySpeaking ? 'bg-red-300 text-red-900 hover:bg-red-200' : 'bg-cyan-300 text-slate-900 hover:bg-cyan-200'}`}
                     >
                       {isStorySpeaking ? '⏹ إيقاف الصوت' : '🔊 قراءة القصة'}
                     </button>
@@ -854,7 +858,7 @@ export default function MainExperience({ character, childName, ageGroup, onResta
                       stopStoryNarration();
                       setShowProphetStories(false);
                     }}
-                    className="w-9 h-9 rounded-full bg-white/10 text-white hover:bg-white/20 transition"
+                    className="w-10 h-10 rounded-full bg-white/10 text-white hover:bg-white/20 transition"
                     aria-label="إغلاق"
                   >
                     ✕
@@ -880,7 +884,7 @@ export default function MainExperience({ character, childName, ageGroup, onResta
 
               <motion.div
                 key={`${currentStory.prophet}-${prophetStoryIndex}`}
-                className="rounded-2xl border border-white/15 bg-white/5 p-5 h-[calc(86vh-210px)] overflow-y-auto"
+                className="rounded-2xl border border-white/15 bg-white/5 p-3 sm:p-5 flex-1 min-h-0 overflow-y-auto"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25 }}
@@ -890,20 +894,20 @@ export default function MainExperience({ character, childName, ageGroup, onResta
                   <span className="text-4xl">{currentStory.icon}</span>
                   <div>
                     <p className="text-cyan-200 text-base font-bold">{currentStory.prophet}</p>
-                    <h4 className="text-white font-black text-2xl">{currentStory.title}</h4>
+                    <h4 className="text-white font-black text-xl sm:text-2xl">{currentStory.title}</h4>
                   </div>
                 </div>
 
-                <p className="text-white/95 text-lg leading-9 mb-3">{currentStory.summary}</p>
+                <p className="text-white/95 text-base sm:text-lg leading-8 sm:leading-9 mb-3">{currentStory.summary}</p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
                   <div className="rounded-xl bg-cyan-400/10 border border-cyan-300/20 p-3">
                     <p className="text-cyan-200 text-sm font-bold mb-1">المكان</p>
-                    <p className="text-white/95 text-base">{currentStory.place}</p>
+                    <p className="text-white/95 text-sm sm:text-base">{currentStory.place}</p>
                   </div>
                   <div className="rounded-xl bg-indigo-400/10 border border-indigo-300/20 p-3">
                     <p className="text-indigo-200 text-sm font-bold mb-1">الفترة</p>
-                    <p className="text-white/95 text-base">{currentStory.period}</p>
+                    <p className="text-white/95 text-sm sm:text-base">{currentStory.period}</p>
                   </div>
                 </div>
 
@@ -911,24 +915,24 @@ export default function MainExperience({ character, childName, ageGroup, onResta
                   <p className="text-white/80 text-sm font-bold mb-2">معلومات أكثر</p>
                   <ul className="space-y-1.5">
                     {currentStory.keyFacts.map((fact, idx) => (
-                      <li key={idx} className="text-white/95 text-base leading-8">• {fact}</li>
+                      <li key={idx} className="text-white/95 text-sm sm:text-base leading-7 sm:leading-8">• {fact}</li>
                     ))}
                   </ul>
                 </div>
 
                 <div className="rounded-xl bg-yellow-400/10 border border-yellow-300/20 p-3 mb-3">
                   <p className="text-yellow-200 text-sm font-bold mb-1">الدرس المستفاد</p>
-                  <p className="text-white/95 text-base leading-8">{currentStory.lesson}</p>
+                  <p className="text-white/95 text-sm sm:text-base leading-7 sm:leading-8">{currentStory.lesson}</p>
                 </div>
 
                 <div className="rounded-xl bg-emerald-400/10 border border-emerald-300/20 p-3">
                   <p className="text-emerald-200 text-sm font-bold mb-1">تطبيق اليوم</p>
-                  <p className="text-white/95 text-base leading-8">{currentStory.action}</p>
+                  <p className="text-white/95 text-sm sm:text-base leading-7 sm:leading-8">{currentStory.action}</p>
                 </div>
 
                 <div className="rounded-xl bg-fuchsia-400/10 border border-fuchsia-300/25 p-3 mt-3">
                   <p className="text-fuchsia-200 text-sm font-bold mb-2">تحدي البطل الصغير</p>
-                  <p className="text-white/95 text-base leading-8 mb-2">{currentStory.challengeQuestion}</p>
+                  <p className="text-white/95 text-sm sm:text-base leading-7 sm:leading-8 mb-2">{currentStory.challengeQuestion}</p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                     {currentStory.challengeOptions.map((option, idx) => {
                       const isSelected = storySelectedOption === idx;
@@ -944,7 +948,7 @@ export default function MainExperience({ character, childName, ageGroup, onResta
                           key={idx}
                           type="button"
                           onClick={() => handleStoryAnswer(idx)}
-                          className={`px-3 py-2 rounded-xl text-sm font-bold transition ${buttonClass}`}
+                          className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition min-h-11 ${buttonClass}`}
                         >
                           {option}
                         </button>
@@ -961,19 +965,19 @@ export default function MainExperience({ character, childName, ageGroup, onResta
                 </div>
               </motion.div>
 
-              <div className="flex items-center justify-between mt-5" dir="rtl">
-                <div className="flex gap-2">
+              <div className="flex flex-wrap items-center justify-between gap-2 mt-5" dir="rtl">
+                <div className="flex gap-2 flex-wrap">
                   <button
                     type="button"
                     onClick={goToPrevStory}
-                    className="px-4 py-2 rounded-xl bg-white/10 text-white text-sm md:text-base hover:bg-white/20 transition"
+                    className="px-4 py-2 rounded-xl bg-white/10 text-white text-xs sm:text-sm md:text-base hover:bg-white/20 transition min-h-11"
                   >
                     السابق
                   </button>
                   <button
                     type="button"
                     onClick={goToNextStory}
-                    className="px-4 py-2 rounded-xl bg-cyan-300 text-slate-900 text-sm md:text-base font-bold hover:bg-cyan-200 transition"
+                    className="px-4 py-2 rounded-xl bg-cyan-300 text-slate-900 text-xs sm:text-sm md:text-base font-bold hover:bg-cyan-200 transition min-h-11"
                   >
                     التالي
                   </button>
@@ -985,7 +989,7 @@ export default function MainExperience({ character, childName, ageGroup, onResta
                     setShowProphetStories(false);
                     setShowJuzAmma(true);
                   }}
-                  className="px-4 py-2 rounded-xl bg-yellow-300 text-purple-900 text-sm md:text-base font-bold hover:bg-yellow-200 transition"
+                  className="px-4 py-2 rounded-xl bg-yellow-300 text-purple-900 text-xs sm:text-sm md:text-base font-bold hover:bg-yellow-200 transition min-h-11"
                 >
                   تابع رحلة القرآن
                 </button>
