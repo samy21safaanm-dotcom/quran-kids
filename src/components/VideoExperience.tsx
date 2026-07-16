@@ -19,6 +19,9 @@ export default function VideoExperience({ character, onComplete }: Props) {
   const [showSkip,   setShowSkip]   = useState(false);
   const [showText,   setShowText]   = useState(false);
   const [progress,   setProgress]   = useState(0);
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 640px)').matches : false
+  );
 
   const isNoor   = character === 'noor';
   const videoSrc = isNoor ? '/videos/noor-intro.mp4' : '/videos/lujain-intro.mp4';
@@ -26,6 +29,18 @@ export default function VideoExperience({ character, onComplete }: Props) {
   const introText = isNoor
     ? 'صالح — مرشدك في عالم نبأ 🌟'
     : 'هدى — رفيقتك في رحلة الإيمان 🌸';
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const media = window.matchMedia('(max-width: 640px)');
+    const onChange = (event: MediaQueryListEvent) => setIsMobile(event.matches);
+
+    setIsMobile(media.matches);
+    media.addEventListener('change', onChange);
+
+    return () => media.removeEventListener('change', onChange);
+  }, []);
 
   const triggerComplete = useCallback(() => {
     if (hasCalledComplete.current) return;
@@ -93,7 +108,14 @@ export default function VideoExperience({ character, onComplete }: Props) {
         <video
           ref={videoRef}
           src={videoSrc}
-          className="absolute inset-0 w-full h-full object-cover"
+          className={`absolute inset-0 w-full h-full ${isMobile ? 'object-contain' : 'object-cover'}`}
+          style={{
+            objectPosition: 'center center',
+            transform: isMobile
+              ? 'none'
+              : (isNoor ? 'scale(1.1) translate(2%, 8%)' : 'scale(1.05)'),
+            transformOrigin: 'center center',
+          }}
           playsInline
           preload="auto"
           onEnded={handleEnded}
@@ -119,10 +141,6 @@ export default function VideoExperience({ character, onComplete }: Props) {
           </motion.div>
         </div>
       )}
-
-      {/* Letterbox bars */}
-      <div className="absolute top-0 inset-x-0 h-[clamp(2.5rem,7vh,4rem)] bg-black z-20 pointer-events-none" />
-      <div className="absolute bottom-0 inset-x-0 h-[clamp(2.5rem,7vh,4rem)] bg-black z-20 pointer-events-none" />
 
       {/* Vignette */}
       <div className="absolute inset-0 z-10 pointer-events-none"
@@ -186,7 +204,7 @@ export default function VideoExperience({ character, onComplete }: Props) {
       </AnimatePresence>
 
       {/* Progress bar: يظهر دائماً */}
-      <div className="absolute bottom-[clamp(2.5rem,7vh,4rem)] inset-x-0 z-30 px-4 sm:px-8 md:px-10">
+      <div className="absolute bottom-4 sm:bottom-6 inset-x-0 z-30 px-4 sm:px-8 md:px-10">
         <div className="h-0.5 bg-white/15 rounded-full overflow-hidden max-w-lg mx-auto">
           <motion.div
             className={`h-full rounded-full ${isNoor ? 'bg-sky-400' : 'bg-purple-400'}`}
@@ -202,7 +220,7 @@ export default function VideoExperience({ character, onComplete }: Props) {
       <AnimatePresence>
         {showSkip && videoState !== 'loading' && videoState !== 'ending' && (
           <motion.button
-            className="absolute top-[calc(clamp(2.5rem,7vh,4rem)+0.5rem)] left-3 sm:left-6 z-40 text-white/60 hover:text-white px-3.5 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-colors min-h-11"
+            className="absolute top-3 sm:top-6 left-3 sm:left-6 z-40 text-white/60 hover:text-white px-3.5 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-colors min-h-11"
             style={{ background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}
             initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }}
             onClick={handleSkip}
@@ -217,7 +235,7 @@ export default function VideoExperience({ character, onComplete }: Props) {
       <AnimatePresence>
         {showText && (
           <motion.div
-            className="absolute top-0 inset-x-0 h-[clamp(2.5rem,7vh,4rem)] z-25 flex items-center justify-center pointer-events-none px-3"
+            className="absolute top-2 sm:top-4 inset-x-0 z-25 flex items-center justify-center pointer-events-none px-3"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5, duration: 1 }}
           >
             <p className="text-white/50 text-xs sm:text-sm text-center" style={{ fontFamily: 'Amiri, serif' }}>

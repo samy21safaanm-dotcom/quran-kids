@@ -393,6 +393,11 @@ export default function MainExperience({ character, childName, ageGroup, onResta
   return (
     <motion.div
       className="min-h-screen relative overflow-hidden"
+      style={{
+        paddingLeft: 'max(16px, env(safe-area-inset-left))',
+        paddingRight: 'max(16px, env(safe-area-inset-right))',
+        boxSizing: 'border-box',
+      }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
@@ -415,7 +420,7 @@ export default function MainExperience({ character, childName, ageGroup, onResta
       {/* Force true centering regardless of RTL */}
       <div
         className="relative z-10 px-3 sm:px-4 pb-24"
-        style={{ maxWidth: 896, marginLeft: 'auto', marginRight: 'auto' }}
+        style={{ maxWidth: 896, marginLeft: 'auto', marginRight: 'auto', minWidth: 0 }}
       >
 
         {/* Header */}
@@ -670,7 +675,18 @@ export default function MainExperience({ character, childName, ageGroup, onResta
       {/* Bottom navigation */}
       <motion.nav className="fixed bottom-0 left-0 right-0 z-50"
         initial={{ y: 100 }} animate={{ y: 0 }} transition={{ delay: 0.5, type: 'spring', stiffness: 200 }}>
-        <div className="px-2 sm:px-4 pb-[max(12px,env(safe-area-inset-bottom))]" style={{ maxWidth: 896, marginLeft: 'auto', marginRight: 'auto' }} dir="ltr">
+        <div
+          className="px-2 sm:px-4 pb-[max(12px,env(safe-area-inset-bottom))]"
+          style={{
+            maxWidth: 896,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+            paddingLeft: 'max(8px, env(safe-area-inset-left))',
+            paddingRight: 'max(8px, env(safe-area-inset-right))',
+            boxSizing: 'border-box',
+          }}
+          dir="ltr"
+        >
           <div className="glass-card border border-white/10 rounded-2xl p-2 flex justify-around">
             {tabs.map(tab => (
               <motion.button key={tab.id}

@@ -486,17 +486,23 @@ const StoryPanel = memo(function StoryPanel({ surah, accent, onPlayReady, onPlay
         onCanPlay={handleCanPlay} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
       {/* Controls */}
       {phase === 'playing' && !videoError && (
-        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center w-[calc(100%-0.75rem)] sm:w-full max-w-xl px-1.5 sm:px-4">
+        <div
+          className="absolute bottom-2 left-2 right-2 sm:left-4 sm:right-4 z-20 flex flex-col items-center"
+          style={{
+            paddingLeft: 'max(0px, env(safe-area-inset-left))',
+            paddingRight: 'max(0px, env(safe-area-inset-right))',
+          }}
+        >
           <input type="range" min="0" max="100" value={progress} onChange={handleSeek}
             className="w-full accent-yellow-400" />
           <div className="flex items-center justify-center gap-2 mt-2 w-full rounded-2xl bg-slate-900/65 border border-white/20 backdrop-blur-md px-2 py-2 sm:w-auto sm:rounded-none sm:bg-transparent sm:border-0 sm:backdrop-blur-0 sm:px-0 sm:py-0">
             <button onClick={playing ? handlePause : handlePlay}
-              className="bg-yellow-400 text-purple-900 rounded-full px-3 sm:px-5 py-1.5 sm:py-2 font-black text-xs sm:text-lg shadow min-h-9 sm:min-h-11 flex-1 sm:flex-none">
+              className="bg-yellow-400 text-purple-900 rounded-full px-3 sm:px-5 py-1.5 sm:py-2 font-black text-xs sm:text-lg shadow min-h-9 sm:min-h-11 flex-1 sm:flex-none whitespace-nowrap">
               <span className="sm:hidden">{playing ? '⏸ إيقاف' : '▶ تشغيل'}</span>
               <span className="hidden sm:inline">{playing ? '⏸ إيقاف مؤقت' : '▶ تشغيل'}</span>
             </button>
             <button onClick={handleReplay}
-              className="bg-white/80 text-purple-900 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 font-bold text-xs sm:text-base border border-yellow-400 min-h-9 sm:min-h-11 flex-1 sm:flex-none">
+              className="bg-white/80 text-purple-900 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 font-bold text-xs sm:text-base border border-yellow-400 min-h-9 sm:min-h-11 flex-1 sm:flex-none whitespace-nowrap">
               ↺ إعادة
             </button>
           </div>
@@ -751,7 +757,7 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
       <div className="absolute inset-0 islamic-pattern opacity-5 pointer-events-none" />
 
       {/* Layout */}
-      <div className="relative z-10 h-full flex flex-col min-w-0">
+      <div className="relative z-10 h-full flex flex-col min-w-0 ios-safe-inline">
 
         {/* Header */}
         <motion.div className="flex-shrink-0 px-3 sm:px-4 md:px-6 pt-3 sm:pt-4 pb-2.5 sm:pb-3"
@@ -767,6 +773,7 @@ export default function SurahPage({ surah, ayat, onBack }: Props) {
               <h1 className="text-[clamp(1rem,4.2vw,1.5rem)] font-black text-white truncate">سورة {surah.name}</h1>
               <p className="text-[10px] sm:text-xs truncate" style={{ color: accent }}>{surah.ayat} آيات • {surah.type} • {surah.nameEn}</p>
             </div>
+
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xl sm:text-2xl flex-shrink-0"
               style={{ background: `${accent}20`, border: `1px solid ${accent}40` }}>
               {surah.icon}

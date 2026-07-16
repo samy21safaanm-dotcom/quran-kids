@@ -163,7 +163,12 @@ export default function ChatExperience({ character, onComplete }: Props) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-40 flex"
+      className="fixed inset-0 z-40 flex overflow-x-hidden"
+      style={{
+        paddingLeft: 'max(16px, env(safe-area-inset-left))',
+        paddingRight: 'max(16px, env(safe-area-inset-right))',
+        boxSizing: 'border-box',
+      }}
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}
       onClick={ensureAudio}
     >
@@ -174,7 +179,7 @@ export default function ChatExperience({ character, onComplete }: Props) {
       <div className={`absolute bottom-0 left-0 w-[min(52vw,16rem)] h-[min(52vw,16rem)] rounded-full blur-3xl opacity-15 ${isNoor ? 'bg-yellow-400' : 'bg-pink-500'}`} />
       <div className="absolute inset-0 islamic-pattern opacity-10" />
 
-      <div className="relative z-10 flex flex-col md:flex-row w-full max-w-5xl mx-auto p-2 sm:p-3 md:p-4 gap-2 sm:gap-4">
+      <div className="relative z-10 flex flex-col md:flex-row w-full max-w-5xl mx-auto min-w-0 p-2 sm:p-3 md:p-4 gap-2 sm:gap-4">
 
         {/* Character sidebar */}
         <motion.div

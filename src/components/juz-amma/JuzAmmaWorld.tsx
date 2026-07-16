@@ -120,10 +120,19 @@ export default function JuzAmmaWorld({
       <div
         ref={containerRef}
         className="relative z-10 h-full overflow-y-auto"
-        style={{ direction: 'ltr' }}
+        style={{
+          direction: 'ltr',
+          overflowX: 'hidden',
+        }}
       >
-        <div className="w-full flex justify-center">
-          <div className="w-full max-w-[72rem] px-3 sm:px-4 md:px-6 pb-16" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+          <div
+            className="w-full max-w-[72rem] mx-auto px-2 sm:px-4 md:px-6 pb-16"
+            style={{
+              boxSizing: 'border-box',
+              paddingLeft: 'max(8px, env(safe-area-inset-left))',
+              paddingRight: 'max(8px, env(safe-area-inset-right))',
+            }}
+          >
 
           {/* ── STICKY HEADER ── */}
           <motion.header
@@ -329,7 +338,7 @@ export default function JuzAmmaWorld({
 
           {/* ── SURAH GRID ── */}
           <motion.div
-            className="w-full mx-auto flex flex-wrap justify-center gap-3 sm:gap-4"
+            className="w-full mx-auto grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4"
             layout
           >
             <AnimatePresence>
@@ -355,7 +364,6 @@ export default function JuzAmmaWorld({
           )}
 
           </div>
-        </div>
       </div>
 
       <motion.button
@@ -520,7 +528,7 @@ function SurahCard({ surah, index, isHovered, onHover, onSelect }: {
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.8 }}
       transition={{ delay: index * 0.03, duration: 0.4, type: 'spring', stiffness: 200 }}
-      style={{ position: 'relative', cursor: 'pointer', width: 'clamp(160px, 18vw, 200px)' }}
+      style={{ position: 'relative', cursor: 'pointer', width: '100%', minWidth: 0 }}
       onHoverStart={() => onHover(surah.id)}
       onHoverEnd={() => onHover(null)}
       onClick={() => onSelect(surah)}

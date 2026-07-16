@@ -46,6 +46,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+html, body, #__next {
+  width: 100%;
+  max-width: 100%;
+}
+
+@supports (overflow: clip) {
+  body {
+    overflow-x: clip;
+  }
+}
+
 /* ── Arabic text rendering ─────────────────────────────────────────────────── */
 p, h1, h2, h3, h4, h5, h6, span, button, input, label, div {
   font-family: var(--font-ui);
@@ -291,10 +302,13 @@ p, h1, h2, h3, h4, h5, h6, span, button, input, label, div {
   color: #ffffff;
 }
 
-img,
-video {
+img {
   max-width: 100%;
   height: auto;
+}
+
+video {
+  max-width: 100%;
 }
 
 /* ── RTL Utilities ──────────────────────────────────────────────────────────── */
@@ -319,6 +333,11 @@ video {
 }
 .animate-float-slower {
   animation: float-slower 7s ease-in-out infinite;
+}
+
+.ios-safe-inline {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 .cinematic-glow {
